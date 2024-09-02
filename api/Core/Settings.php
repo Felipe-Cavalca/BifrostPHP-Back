@@ -44,8 +44,6 @@ final class Settings
     public function __get($name): mixed
     {
         switch ($name) {
-            case "database":
-                return $this->getSettingsDatabase();
             default:
                 return $this->getEnv($name);
         }
@@ -121,17 +119,23 @@ final class Settings
     /**
      * It is responsible for returning the database settings.
      *
+     * @param string $databaseName The prefix name of the database in the .env file
+     * @uses Settings::getEnv()
      * @return array
      */
-    private function getSettingsDatabase(): array
+    public function getSettingsDatabase(string $databaseName = null): array
     {
+        if(!empty($databaseName)){
+            $databaseName = strtoupper($databaseName) . "_";
+        }
+
         return [
-            "driver" => static::getEnv("MYSQL_DRIVER", true),
-            "host" => static::getEnv("MYSQL_HOST", true),
-            "port" => static::getEnv("MYSQL_PORT", true),
-            "database" => static::getEnv("MYSQL_DATABASE", true),
-            "username" => static::getEnv("MYSQL_USER", true),
-            "password" => static::getEnv("MYSQL_PASSWORD", true),
+            "driver" => static::getEnv("{$databaseName}SQL_DRIVER", true),
+            "host" => static::getEnv("{$databaseName}SQL_HOST", true),
+            "port" => static::getEnv("{$databaseName}SQL_PORT", true),
+            "database" => static::getEnv("{$databaseName}SQL_DATABASE", true),
+            "username" => static::getEnv("{$databaseName}SQL_USER", true),
+            "password" => static::getEnv("{$databaseName}SQL_PASSWORD", true),
         ];
     }
 }
