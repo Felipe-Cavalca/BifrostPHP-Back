@@ -1,4 +1,5 @@
 <?php
+
 /**
  * It is responsible for managing the connection to the database.
  *
@@ -19,47 +20,61 @@ use Bifrost\Core\Settings;
 class Database
 {
     /** It is responsible for storaging the connection to the database. */
-    private static PDO $conn;
+    private static array $conections;
+    private PDO $conn;
     /** It is responsible for storaging the system settings. */
     private static Settings $settings;
+    /** It is responsible for storaging the driver of the database. */
+    public string $driver;
 
     /**
      * It is responsible for initializing the connection to the database.
      *
+     * @param string $databaseName The prefix name of the database in the .env file
      * @uses Settings
      * @uses Database::conn()
      * @return void
      */
-    public function __construct()
+    public function __construct(string $databaseName = null)
     {
         if (empty(self::$settings)) {
             self::$settings = new Settings();
         }
 
-        if (empty(self::$conn)) {
-            self::$conn = $this->conn();
+        if (empty(self::$conections[$databaseName])) {
+            self::$conections[$databaseName] = $this->conn($databaseName);
         }
+
+        $this->conn = self::$conections[$databaseName];
     }
 
     /**
      * It is responsible for returning the connection to the database.
      *
+     * @param string $databaseName The prefix name of the database in the .env file
      * @uses Settings
      * @uses PDO
      * @uses Database::$conn
      * @return PDO
      */
-    private static function conn(): PDO
+    private function conn(string $databaseName = null): PDO
     {
-        $dataConn = self::$settings->database;
+        $dataConn = self::$settings->getSettingsDatabase($databaseName);
+        $this->driver = $dataConn["driver"];
 
         switch ($dataConn["driver"]) {
             case "sqlite":
                 return new PDO("sqlite:" . $dataConn["database"]);
             case "mysql":
-            default:
                 return new PDO(
                     "mysql:host={$dataConn["host"]}:{$dataConn["port"]};dbname={$dataConn["database"]};charset=utf8",
+                    $dataConn["username"],
+                    $dataConn["password"]
+                );
+            case "pgsql":
+            default:
+                return new PDO(
+                    "pgsql:host={$dataConn["host"]};port={$dataConn["port"]};dbname={$dataConn["database"]}",
                     $dataConn["username"],
                     $dataConn["password"]
                 );
@@ -96,10 +111,10 @@ class Database
     public function inicializeTransaction(): bool
     {
         if (
-            self::$conn instanceof PDO &&
-            !self::$conn->inTransaction()
+            $this->conn instanceof PDO &&
+            !$this->conn->inTransaction()
         ) {
-            return self::$conn->beginTransaction();
+            return $this->conn->beginTransaction();
         }
         return false;
     }
@@ -114,10 +129,10 @@ class Database
     public function rollback(): bool
     {
         if (
-            self::$conn instanceof PDO &&
-            self::$conn->inTransaction()
+            $this->conn instanceof PDO &&
+            $this->conn->inTransaction()
         ) {
-            return self::$conn->rollBack();
+            return $this->conn->rollBack();
         }
         return false;
     }
@@ -132,10 +147,10 @@ class Database
     public function save(): bool
     {
         if (
-            self::$conn instanceof PDO &&
-            self::$conn->inTransaction()
+            $this->conn instanceof PDO &&
+            $this->conn->inTransaction()
         ) {
-            return self::$conn->commit();
+            return $this->conn->commit();
         }
         return false;
     }
@@ -150,7 +165,7 @@ class Database
      */
     public function run(string $sql, array $params = []): bool
     {
-        $stmt = self::$conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         return $stmt->execute($params);
     }
 
@@ -169,7 +184,7 @@ class Database
      */
     public function list(string $sql, array $params = []): array
     {
-        $stmt = self::$conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -189,7 +204,7 @@ class Database
      */
     public function listOne(string $sql, array $params = []): array
     {
-        $stmt = self::$conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -310,14 +325,26 @@ class Database
         }
 
         $fields = [];
-        $query = $this->list("DESC {$table}");
+
+        if ($this->driver = "PostgreSQL") {
+            $query = $this->list("SELECT column_name AS Field, data_type AS Type, is_nullable AS Null, column_default AS Default,
+                          (SELECT EXISTS (SELECT 1 FROM information_schema.table_constraints tc
+                          JOIN information_schema.key_column_usage kcu
+                          ON tc.constraint_name = kcu.constraint_name
+                          WHERE tc.table_name = '{$table}' AND kcu.column_name = c.column_name AND tc.constraint_type = 'PRIMARY KEY')) AS pk
+                          FROM information_schema.columns c
+                          WHERE table_name = '{$table}'");
+        } else {
+            $query = $this->list("DESC {$table}");
+        }
+
         foreach ($query as $field) {
             $fields[] = [
-                "name" => $field["Field"],
-                "type" => $field["Type"],
-                "null" => $field["Null"] == "YES",
-                "default" => $field["Default"],
-                "pk" => $field["Extra"] == "auto_increment"
+                "name" => $field["field"] ?? $field["Field"],
+                "type" => $field["type"] ?? $field["Type"],
+                "null" => ($field["null"] ?? $field["Null"]) == "YES",
+                "default" => isset($field["default"]) ? $field["default"] : (isset($field["Default"]) ? $field["Default"] : null),
+                "pk" => $field["pk"] ?? $field["Extra"] == "auto_increment"
             ];
         }
 
@@ -333,8 +360,13 @@ class Database
     public function getTables(): array
     {
         $tables = [];
-        $query = $this->list("SHOW TABLES");
-        $tables = array_column($query, 'Tables_in_' . self::$settings->database["database"]);
+        if ($this->driver = "PostgreSQL") {
+            $query = $this->list("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';");
+            $tables = array_column($query, 'table_name');
+        } else {
+            $query = $this->list("SHOW TABLES");
+            $tables = array_column($query, 'Tables_in_' . self::$settings->database["database"]);
+        }
         return $tables;
     }
 
