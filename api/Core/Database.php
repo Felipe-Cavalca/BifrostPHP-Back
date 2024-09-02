@@ -395,4 +395,22 @@ class Database
         $fields = array_column($this->getDetTable($table), "name");
         return in_array($field, $fields);
     }
+
+    /**
+     * It is responsible for setting the system identifier.
+     *
+     * This function is only available for PostgreSQL.
+     *
+     * @param array $data Array of data
+     * @return bool
+     */
+    public function setSystemIdentifier(array $data): bool
+    {
+        if ($this->driver != "PostgreSQL") {
+            return false;
+        }
+
+        $systemIdentifier = json_encode($data);
+        return $this->conn->exec("SET bifrost.system_identifier = '$systemIdentifier'");
+    }
 }
