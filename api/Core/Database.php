@@ -413,4 +413,121 @@ class Database
         $systemIdentifier = json_encode($data);
         return $this->conn->exec("SET bifrost.system_identifier = '$systemIdentifier'");
     }
+
+    /**
+     * It is responsible for running the SQL query.
+     *
+     * @param string|array $select
+     * @param string $insert
+     * @param string $update
+     * @param string $delete
+     * @param string $from
+     * @param array $set
+     * @param array $values
+     * @param string|array $where
+     * @param string|array $join
+     * @param string $order
+     * @param string $limit
+     * @param string|array $having
+     * @param array $params
+     *
+     * @return array|bool
+     */
+    public function query(
+        string|array $select = null,
+        string $insert = null,
+        string $update = null,
+        string $delete = null,
+        string $from = null,
+        array $set = null,
+        array $values = null,
+        string|array $where = null,
+        string|array $join = null,
+        string $order = null,
+        string $limit = null,
+        string|array $having = null,
+        array $params = []
+    ) {
+        $query = "";
+
+        // SELECT
+        if (!empty($select)) {
+            $query .= "SELECT ";
+            if (is_array($select)) {
+                $query .= implode(", ", $select);
+            } else {
+                $query .= $select;
+            }
+        }
+        // INSERT
+        else if (!empty($insert)) {
+            $query .= "INSERT INTO $insert ";
+            if (!empty($values)) {
+                $query .= " (" . implode(", ", array_keys($values)) . ") VALUES (:" . implode(", :", array_keys($values)) . ")";
+            }
+        }
+        // UPDATE
+        else if (!empty($update)) {
+            $query .= "UPDATE $update ";
+            if (!empty($set)) {
+                $query .= " SET ";
+                $fields = [];
+                foreach (array_keys($set) as $field) {
+                    $fields[] = "{$field} = :{$field}";
+                }
+                $query .= implode(", ", $fields);
+            }
+        }
+        // DELETE
+        else if (!empty($delete)) {
+            $query .= "DELETE FROM $delete ";
+            $from = null;
+        }
+
+        if (!empty($from)) {
+            $query .= " FROM $from ";
+        }
+
+        if (!empty($join)) {
+            if (is_array($join)) {
+                foreach ($join as $j) {
+                    $query .= " $j";
+                }
+            } else {
+                $query .= $join;
+            }
+        }
+
+        if (!empty($where)) {
+            $query .= " WHERE ";
+            if (is_array($where)) {
+                $query .= $this->where($where);
+            } else {
+                $query .= $where;
+            }
+        }
+
+        if (!empty($order)) {
+            $query .= " ORDER BY $order";
+        }
+
+        if (!empty($limit)) {
+            $query .= " LIMIT $limit";
+        }
+
+        if (!empty($having)) {
+            $query .= " HAVING ";
+            if (is_array($having)) {
+                $query .= $this->where($having);
+            } else {
+                $query .= $having;
+            }
+        }
+
+        if (empty($select)) {
+            return $this->run($query, $params);
+        } else {
+            return $this->list($query, $params);
+        }
+    }
 }
