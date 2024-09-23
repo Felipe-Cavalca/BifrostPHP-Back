@@ -9,6 +9,9 @@ use Bifrost\Attributes\RequiredFields;
 use Bifrost\Attributes\RequiredParams;
 use Bifrost\Attributes\Cache;
 use Bifrost\Core\Settings;
+use Bifrost\Enum\HttpStatusCode;
+use Bifrost\Class\HttpResponse;
+use Bifrost\Class\HttpError;
 
 class Index implements ControllerInterface
 {
@@ -23,10 +26,26 @@ class Index implements ControllerInterface
     }
 
     #[Method(["GET"])]
-    #[Cache("index-data", 10)]
+    // #[Cache("index-data", 10)]
     public function index()
     {
-        return "Index";
+        if (!isset($_GET["id"])) {
+            throw new HttpError(HttpStatusCode::BAD_REQUEST, "ID não informado");
+        }
+
+        if ($_GET["id"] == 1) {
+            return HttpResponse::success("Sucesso", ["id" => 1, "nome" => "João"]);
+        }
+
+        if ($_GET["id"] == 2) {
+            return HttpResponse::buildResponse(HttpStatusCode::CREATED, "Criado", ["id" => 2, "nome" => "Maria"]);
+        }
+
+        if($_GET["id"] == 3) {
+            return new HttpResponse(HttpStatusCode::NO_CONTENT, "Sem conteúdo");
+        }
+
+        return HttpResponse::notFound("Não encontrado");
     }
 
     #[Method(["POST"])]
