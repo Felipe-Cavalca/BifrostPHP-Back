@@ -15,14 +15,14 @@ class RequiredParams implements AttributesInterface
         $this->validateRequiredParams($this->params);
     }
 
-    public function __destruct() { }
+    public function __destruct() {}
 
     public function beforeRun(): mixed
     {
         return null;
     }
 
-    public function afterRun($return): void { }
+    public function afterRun($return): void {}
 
     private function validateRequiredParams(array $params)
     {
@@ -39,8 +39,7 @@ class RequiredParams implements AttributesInterface
     private function existParam($field)
     {
         if (!isset($_GET[$field])) {
-            throw new HttpError("badRequest", [
-                "error" =>  "Parametro não encontrado",
+            throw HttpError::badRequest("Parametro não encontrado", [
                 "fieldName" => $field,
             ]);
         }
@@ -49,8 +48,7 @@ class RequiredParams implements AttributesInterface
     private function validateType($field, $param)
     {
         if (!filter_var($_GET[$field], $param)) {
-            throw new HttpError("badRequest", [
-                "error" =>  "Campo inválido",
+            throw HttpError::badRequest("Parametro inválido", [
                 "fieldName" => $field,
             ]);
         }

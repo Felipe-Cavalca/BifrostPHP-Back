@@ -15,14 +15,14 @@ class RequiredFields implements AttributesInterface
         $this->validateRequiredFields($this->fields);
     }
 
-    public function __destruct() { }
+    public function __destruct() {}
 
     public function beforeRun(): mixed
     {
         return null;
     }
 
-    public function afterRun($return): void { }
+    public function afterRun($return): void {}
 
     private function validateRequiredFields(array $fields)
     {
@@ -39,8 +39,7 @@ class RequiredFields implements AttributesInterface
     private function existField($field)
     {
         if (!isset($_POST[$field])) {
-            throw new HttpError("badRequest", [
-                "error" =>  "Campo não encontrado",
+            throw HttpError::badRequest("Campo não encontrado", [
                 "fieldName" => $field,
             ]);
         }
@@ -49,8 +48,7 @@ class RequiredFields implements AttributesInterface
     private function validateType($field, $param)
     {
         if (!filter_var($_POST[$field], $param)) {
-            throw new HttpError("badRequest", [
-                "error" =>  "Campo inválido",
+            throw HttpError::badRequest("Campo inválido", [
                 "fieldName" => $field,
             ]);
         }

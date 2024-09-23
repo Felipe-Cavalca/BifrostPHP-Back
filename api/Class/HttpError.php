@@ -52,4 +52,23 @@ class HttpError extends \Error
             data: $data
         );
     }
+
+    public static function badRequest(string $details, array|string $data = []): HttpError
+    {
+        return new self(
+            statusCode: HttpStatusCode::BAD_REQUEST,
+            details: $details,
+            data: $data
+        );
+    }
+
+    public static function internalServerError(string $details, array|string $data = [], array $additionalInfo = []): HttpError
+    {
+        return new self(
+            statusCode: HttpStatusCode::INTERNAL_SERVER_ERROR,
+            details: $details,
+            data: $data,
+            additionalInfo: $additionalInfo
+        );
+    }
 }
