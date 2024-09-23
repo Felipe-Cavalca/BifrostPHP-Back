@@ -447,7 +447,7 @@ class Database
         string $limit = null,
         string|array $having = null,
         array $params = []
-    ) {
+    ): array|bool {
         $query = "";
 
         // SELECT
