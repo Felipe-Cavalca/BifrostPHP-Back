@@ -10,7 +10,9 @@
 namespace Bifrost\Core;
 
 use PDO;
+use PDOException;
 use Bifrost\Core\Settings;
+use Bifrost\Class\HttpError;
 
 /**
  * It is responsible for managing the connection to the database.
@@ -73,11 +75,13 @@ class Database
                 );
             case "pgsql":
             default:
-                return new PDO(
+                $pdo = new PDO(
                     "pgsql:host={$dataConn["host"]};port={$dataConn["port"]};dbname={$dataConn["database"]}",
                     $dataConn["username"],
                     $dataConn["password"]
                 );
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                return $pdo;
         }
     }
 
@@ -166,7 +170,13 @@ class Database
     public function run(string $sql, array $params = []): bool
     {
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute($params);
+        $stmt->execute($params);
+
+        // Verifica se a consulta contém a cláusula RETURNING
+        if (stripos($sql, 'RETURNING') !== false) {
+            return $stmt->fetchColumn();
+        }
+        return true;
     }
 
     /**
@@ -216,7 +226,7 @@ class Database
      * @param array $data Array of data where the key is the field name and the value is the field value.
      * @uses Database::existField()
      * @uses Database::run()
-     * @return bool
+     * @return int|bool
      *
      * @example
      * <pre>
@@ -227,20 +237,37 @@ class Database
      *     'password' => 'securepassword'
      * ];
      * $success = $this->insert($table, $data); <br>
-     * // Result: true if the insertion was successful, false otherwise
+     * // Result: The last insert ID if the insertion was successful, false otherwise
      * </pre>
      */
-    public function insert(string $table, array $data): bool
+    public function insert(string $table, array $data): int|false
     {
-        if ($this->existField($table, "created")) {
-            $data["created"] = date("Y-m-d H:i:s");
+        try {
+
+            if ($this->existField($table, "created")) {
+                $data["created"] = date("Y-m-d H:i:s");
+            }
+            if ($this->existField($table, "modified")) {
+                $data["modified"] = date("Y-m-d H:i:s");
+            }
+            $fields = array_keys($data);
+            $sql = "INSERT INTO {$table} (" . implode(", ", $fields) . ") VALUES (:" . implode(", :", $fields) . ") " . $this->driver = "PostgreSQL" ? "RETURNING id" : "";
+
+            $stmt = $this->conn->prepare($sql);
+            if ($stmt->execute($data)) {
+                return $stmt->fetchColumn();
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            throw HttpError::internalServerError(
+                details: $e->getMessage(),
+                additionalInfo: [
+                    "table" => $table,
+                    "data" => $data
+                ]
+            );
         }
-        if ($this->existField($table, "modified")) {
-            $data["modified"] = date("Y-m-d H:i:s");
-        }
-        $fields = array_keys($data);
-        $sql = "INSERT INTO {$table} (" . implode(", ", $fields) . ") VALUES (:" . implode(", :", $fields) . ")";
-        return $this->run($sql, $data);
     }
 
     /**
@@ -446,6 +473,8 @@ class Database
         string $order = null,
         string $limit = null,
         string|array $having = null,
+        string $group = null,
+        string $returning = null,
         array $params = []
     ): array|bool {
         $query = "";
@@ -464,6 +493,9 @@ class Database
             $query .= "INSERT INTO $insert ";
             if (!empty($values)) {
                 $query .= " (" . implode(", ", array_keys($values)) . ") VALUES (:" . implode(", :", array_keys($values)) . ")";
+            }
+            if (!empty($returning)) {
+                $query .= " RETURNING $returning";
             }
         }
         // UPDATE
@@ -507,12 +539,8 @@ class Database
             }
         }
 
-        if (!empty($order)) {
-            $query .= " ORDER BY $order";
-        }
-
-        if (!empty($limit)) {
-            $query .= " LIMIT $limit";
+        if (!empty($group)) {
+            $query .= " GROUP BY $group";
         }
 
         if (!empty($having)) {
@@ -522,6 +550,14 @@ class Database
             } else {
                 $query .= $having;
             }
+        }
+
+        if (!empty($order)) {
+            $query .= " ORDER BY $order";
+        }
+
+        if (!empty($limit)) {
+            $query .= " LIMIT $limit";
         }
 
         if (empty($select)) {
