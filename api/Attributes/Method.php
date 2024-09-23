@@ -31,14 +31,14 @@ class Method implements AttributesInterface
     private function validateMethods(array $methods)
     {
         if (!in_array($_SERVER["REQUEST_METHOD"], $methods)) {
-            throw new HttpError("methodNotAllowed");
+            throw HttpError::methodNotAllowed("Method not allowed");
         }
     }
 
     private function validateMethod(string $method)
     {
         if ($_SERVER["REQUEST_METHOD"] != $method) {
-            throw new HttpError("methodNotAllowed");
+            throw HttpError::methodNotAllowed("Method not allowed");
         }
     }
 }

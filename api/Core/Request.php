@@ -126,9 +126,8 @@ final class Request
             $return = $this->runAction($objController, $this->action);
             $this->runAfterAttributes($attributes, $return);
             return $return;
-        } catch (HttpError $th) {
-            http_response_code($th->getCode());
-            return $th->getReturn();
+        } catch (HttpError $erro) {
+            return $erro;
         }
     }
 
@@ -144,7 +143,7 @@ final class Request
     {
         $controller = Path::CONTROLLERS->value . $controller;
         if (!class_exists($controller)) {
-            throw new HttpError("e404");
+            throw HttpError::notFound("Controller not found", ["controller" => $controller]);
         }
         return true;
     }
@@ -174,7 +173,7 @@ final class Request
     private function validateAction(ControllerInterface $controller, string $action): bool
     {
         if (!method_exists($controller, $action)) {
-            throw new HttpError("e404");
+            throw HttpError::notFound("Action not found", ["controller" => $controller, "action" => $action]);
         }
         return true;
     }
