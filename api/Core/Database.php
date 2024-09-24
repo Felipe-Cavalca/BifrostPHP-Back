@@ -98,11 +98,23 @@ class Database
      */
     public function where(array $conditions): string
     {
-        $where = [];
-        foreach (array_keys($conditions) as $field) {
-            $where[] = "{$field} = :{$field}";
+        $sqlConditions = [];
+
+        foreach ($conditions as $key => $value) {
+            if (is_int($key)) {
+                $sqlConditions[] = "$value = :$value";
+            } else {
+                if ($value === null) {
+                    $sqlConditions[] = "$key IS NULL";
+                } elseif (is_array($value)) {
+                    $sqlConditions[] = "$key IN ('" . implode("', '", $value) . "')";
+                } else {
+                    $sqlConditions[] = "$key = $value";
+                }
+            }
         }
-        return implode(" AND ", $where);
+
+        return implode(' AND ', $sqlConditions);
     }
 
     /**
