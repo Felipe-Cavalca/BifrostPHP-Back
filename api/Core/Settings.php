@@ -60,7 +60,7 @@ final class Settings
     protected static function getEnv(string $param, bool $required = false): mixed
     {
         if ($required && !getenv($param)) {
-            throw new HttpError("e500");
+            throw HttpError::internalServerError("The environment variable '{$param}' is required.");
         }
 
         return getenv($param) ?: null;
@@ -129,13 +129,15 @@ final class Settings
             $databaseName = strtoupper($databaseName) . "_";
         }
 
+        $isNotSqlite = static::getEnv("{$databaseName}SQL_DRIVER", true) !== "sqlite";
+
         return [
             "driver" => static::getEnv("{$databaseName}SQL_DRIVER", true),
-            "host" => static::getEnv("{$databaseName}SQL_HOST", true),
-            "port" => static::getEnv("{$databaseName}SQL_PORT", true),
+            "host" => static::getEnv("{$databaseName}SQL_HOST", $isNotSqlite),
+            "port" => static::getEnv("{$databaseName}SQL_PORT", $isNotSqlite),
             "database" => static::getEnv("{$databaseName}SQL_DATABASE", true),
-            "username" => static::getEnv("{$databaseName}SQL_USER", true),
-            "password" => static::getEnv("{$databaseName}SQL_PASSWORD", true),
+            "username" => static::getEnv("{$databaseName}SQL_USER", $isNotSqlite),
+            "password" => static::getEnv("{$databaseName}SQL_PASSWORD", $isNotSqlite),
         ];
     }
 }
