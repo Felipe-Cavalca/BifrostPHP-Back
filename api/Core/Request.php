@@ -9,6 +9,7 @@
 
 namespace Bifrost\Core;
 
+use Bifrost\Core\Get;
 use Bifrost\Core\Settings;
 use Bifrost\Enum\Path;
 use Bifrost\Class\HttpError;
@@ -26,165 +27,71 @@ use ReflectionMethod;
  */
 final class Request
 {
-    /** Controller to be executed. */
-    private string $controller = "index";
+    private Get $Get;
 
-    /** Action to be executed. */
-    private string $action = "index";
-
-    /**
-     * Request constructor.
-     *
-     * It initializes the configuration and sanitizes the GET and POST data.
-     * @uses Settings::init()
-     * @uses Request::sanitizeGet()
-     * @uses Request::sanitizePost()
-     * @return void
-     */
     public function __construct()
     {
+        $this->Get = new Get();
         Settings::init();
-        $this->sanitizeGet();
-        $this->sanitizePost();
     }
 
-    /**
-     * It is responsible for returning the response of the system.
-     * @uses Request::run()
-     * @uses Request::handleResponse()
-     * @return string
-     */
     public function __toString(): string
     {
-        return $this->handleResponse($this->run());
+        return $this->handleResponse($this->run($this->Get->controller, $this->Get->action));
     }
 
-    /**
-     * It is responsible for sanitizing the GET data.
-     * and setting the controller and action to be executed.
-     *
-     * @uses Request::$controller
-     * @uses Request::$action
-     * @global array $_GET
-     * @return void
-     */
-    private function sanitizeGet(): void
-    {
-        $get = $_GET;
-        $url = explode("/", $get["_PageBifrost"] ?? "");
-
-        $this->controller = count($url) == 2 ? $url[0] : $this->controller;
-        $this->action = count($url) == 2 ? $url[1] : $url[0];
-
-        unset($get["_PageBifrost"]);
-        $_GET = $get;
-    }
-
-    /**
-     * It is responsible for sanitizing the POST data.
-     * and setting the POST data.
-     *
-     * @global array $_POST
-     * @return void
-     */
-    private function sanitizePost(): void
-    {
-        $post = $_POST;
-        $json = json_decode(file_get_contents('php://input'), true);
-        $_POST = (is_array($json) ? $json : $post);
-    }
-
-    /**
-     * It is responsible for executing the controller and action.
-     *
-     * @uses Request::validateController()
-     * @uses Request::loadController()
-     * @uses Request::validateAction()
-     * @uses Request::getAttributes()
-     * @uses Request::runBeforeAttributes()
-     * @uses Request::runAction()
-     * @uses Request::runAfterAttributes()
-     * @uses HttpError
-     *
-     * @return mixed The return of the controller and action.
-     */
-    private function run(): mixed
+    public static function run(string $controllerName, string $actionName): mixed
     {
         try {
-            $this->validateController($this->controller);
-            $objController = $this->loadController($this->controller);
-            $this->validateAction($objController, $this->action);
+            if (!self::validateControllerName($controllerName)) {
+                throw HttpError::notFound("Action not found", ["path" => $actionName]);
+            }
+            $objController = self::loadController($controllerName);
 
-            $reflectionMethod = new ReflectionMethod($objController, $this->action);
-            $attributes = $this->getAttributes($reflectionMethod);
-            $return = $this->runBeforeAttributes($attributes);
+            if (!self::validateActionName($objController, $actionName)) {
+                throw HttpError::notFound("Action not found", ["path" => $controllerName . "/" . $actionName]);
+            }
+
+            $reflectionMethod = new ReflectionMethod($objController, $actionName);
+            $attributes = self::getAttributes($reflectionMethod);
+            $return = self::runBeforeAttributes($attributes);
 
             if ($return !== null) {
                 return $return;
             }
 
-            $return = $this->runAction($objController, $this->action);
-            $this->runAfterAttributes($attributes, $return);
+            $return = self::runAction($objController, $actionName);
+            self::runAfterAttributes($attributes, $return);
             return $return;
         } catch (HttpError $erro) {
             return $erro;
         }
     }
 
-    /**
-     * It is responsible for validating the controller.
-     *
-     * @param string $controller Name of the controller to be validated.
-     * @uses Path::CONTROLLERS
-     * @throws HttpError Erro 404
-     * @return bool
-     */
-    private function validateController(string $controller): bool
+    private static function validateControllerName(string $controller): bool
     {
         $controller = Path::CONTROLLERS->value . $controller;
         if (!class_exists($controller)) {
-            throw HttpError::notFound("Controller not found", ["controller" => $controller]);
+            return false;
         }
         return true;
     }
 
-    /**
-     * It is responsible for loading the controller.
-     *
-     * @param string $controller Name of the controller to be loaded.
-     * @uses Path::CONTROLLERS
-     * @return ControllerInterface The controller loaded.
-     * @todo Validate if the controller is an instance of Controller.
-     */
-    private function loadController(string $controller): ControllerInterface
+    private static function loadController(string $controllerName): ControllerInterface
     {
-        $controller = Path::CONTROLLERS->value . $controller;
+        $controller = Path::CONTROLLERS->value . $controllerName;
         return new $controller();
     }
 
-    /**
-     * It is responsible for validating if the action exists in the controller.
-     *
-     * @param ControllerInterface $controller Controller to be validated.
-     * @param string $action Action to be validated.
-     * @throws HttpError Erro 404
-     * @return bool
-     */
-    private function validateAction(ControllerInterface $controller, string $action): bool
+    private static function validateActionName(ControllerInterface $controller, string $action): bool
     {
         if (!method_exists($controller, $action)) {
-            throw HttpError::notFound("Action not found", ["controller" => $controller, "action" => $action]);
+            return false;
         }
         return true;
     }
 
-    /**
-     * It is responsible for returning the attributes of the action.
-     *
-     * @param ReflectionMethod $reflectionMethod Reflection of the action.
-     * @return array Attributes of the action.
-     */
-    private function getAttributes(ReflectionMethod $reflectionMethod): array
+    private static function getAttributes(ReflectionMethod $reflectionMethod): array
     {
         $attributesReturn = [];
         $attributes = $reflectionMethod->getAttributes();
@@ -194,16 +101,7 @@ final class Request
         return $attributesReturn;
     }
 
-    /**
-     * It is responsible for executing the attributes before the action.
-     *
-     * @param array $attributes Attributes to be executed.
-     *
-     * @uses Attribute::beforeRun()
-     *
-     * @return mixed The return of the attribute.
-     */
-    private function runBeforeAttributes(array $attributes): mixed
+    private static function runBeforeAttributes(array $attributes): mixed
     {
         foreach ($attributes as $attribute) {
             if (method_exists($attribute, "beforeRun")) {
@@ -216,17 +114,7 @@ final class Request
         return null;
     }
 
-    /**
-     * It is responsible for executing the attributes after the action.
-     *
-     * @param array $attributes Attributes to be executed.
-     * @param mixed $return Return of the action.
-     *
-     * @uses Attribute::afterRun()
-     *
-     * @return void
-     */
-    private function runAfterAttributes($attributes, $return): void
+    private static function runAfterAttributes(array|null $attributes, mixed $return): void
     {
         foreach ($attributes as $attribute) {
             if (method_exists($attribute, "afterRun")) {
@@ -235,24 +123,11 @@ final class Request
         }
     }
 
-    /**
-     * It is responsible for executing the action.
-     *
-     * @param ControllerInterface $controller Controller to be executed.
-     * @param string $action Action to be executed.
-     * @return mixed The return of the action.
-     */
-    private function runAction(ControllerInterface $controller, string $action): mixed
+    private static function runAction(ControllerInterface $controller, string $action): mixed
     {
         return call_user_func([$controller, $action]);
     }
 
-    /**
-     * It is responsible for handling the response.
-     *
-     * @param mixed $return Return of the system.
-     * @return string The response of the system.
-     */
     private function handleResponse(mixed $return): string
     {
         if (is_array($return)) {
@@ -260,5 +135,20 @@ final class Request
         } else {
             return (string) $return;
         }
+    }
+
+    public static function getOptionsAttributes($controller, $action): array
+    {
+        $controller = self::loadController($controller);
+        $reflectionMethod = new ReflectionMethod($controller, $action);
+        $attributes = $reflectionMethod->getAttributes();
+        $options = [];
+        foreach ($attributes as $attribute) {
+            $attribute = $attribute->newInstance();
+            if (method_exists($attribute, "getOptions")) {
+                $options = array_merge($options, $attribute->getOptions());
+            }
+        }
+        return $options;
     }
 }

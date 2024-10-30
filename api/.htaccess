@@ -1,7 +1,5 @@
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT"
-    Header set Access-Control-Allow-Headers "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
 </IfModule>
 
 # Mudando arquivo inicio do servidor
@@ -11,7 +9,7 @@ DirectoryIndex index.php
 RewriteEngine On
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?_PageBifrost=$1 [QSA]
+RewriteRule ^([^/]+)/([^/]+)(/.*)?$ index.php?_controller=$1&_action=$2&_params=$3 [QSA,L]
 
 #bloqueando listagem de diretorios
 Options -Indexes

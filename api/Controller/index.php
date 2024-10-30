@@ -2,16 +2,20 @@
 
 namespace Bifrost\Controller;
 
-use Bifrost\Interface\ControllerInterface;
-use Bifrost\Include\Controller;
+use Bifrost\Attributes\Cache;
+use Bifrost\Attributes\Details;
 use Bifrost\Attributes\Method;
 use Bifrost\Attributes\RequiredFields;
 use Bifrost\Attributes\RequiredParams;
-use Bifrost\Attributes\Cache;
+use Bifrost\Class\HttpError;
+use Bifrost\Class\HttpResponse;
+use Bifrost\Core\Post;
+use Bifrost\Core\Request;
 use Bifrost\Core\Settings;
 use Bifrost\Enum\HttpStatusCode;
-use Bifrost\Class\HttpResponse;
-use Bifrost\Class\HttpError;
+use Bifrost\Include\Controller;
+use Bifrost\Interface\ControllerInterface;
+use Bifrost\Enum\ValidateField;
 
 class Index implements ControllerInterface
 {
@@ -41,26 +45,93 @@ class Index implements ControllerInterface
             return HttpResponse::buildResponse(HttpStatusCode::CREATED, "Criado", ["id" => 2, "nome" => "Maria"]);
         }
 
-        if($_GET["id"] == 3) {
+        if ($_GET["id"] == 3) {
             return new HttpResponse(HttpStatusCode::NO_CONTENT, "Sem conteúdo");
         }
 
         return HttpResponse::notFound("Não encontrado");
     }
 
-    #[Method(["POST"])]
-    #[RequiredFields([
-        "email" => FILTER_VALIDATE_EMAIL,
-        "numero" => FILTER_VALIDATE_INT,
-    ])]
-    #[RequiredParams(["id"])]
-    #[Cache("index-data", 10)]
-    public function data()
+    public function recurso()
     {
-        return [
-            "id" => $_GET["id"],
-            "email" => $_POST["email"],
-            "numero" => $_POST["numero"],
-        ];
+        switch ($_SERVER["REQUEST_METHOD"]) {
+            case "GET":
+                return Request::run("index", "get_recurso");
+            case "POST":
+                return Request::run("index", "post_recurso");
+            case "PUT":
+            case "PATCH":
+                return Request::run("index", "put_recurso");
+            case "DELETE":
+                return Request::run("index", "delete_recurso");
+            case "OPTIONS":
+                return Request::run("index", "options_recurso");
+            default:
+                return HttpError::methodNotAllowed("Method not allowed");
+        }
+    }
+
+    #[Method("GET")]
+    #[Cache("index-get_recurso", 10)]
+    #[RequiredParams([
+        "id" => ValidateField::INTEGER_IN_STRING
+    ])]
+    #[Details(["description" => "Listar recurso"])]
+    public function get_recurso()
+    {
+        // Exemplo de função GET
+    }
+
+    #[Method("POST")]
+    #[Cache("index-post_recurso", 10)]
+    #[RequiredParams([
+        "id" => ValidateField::INTEGER_IN_STRING
+    ])]
+    #[RequiredFields([
+        "email" => ValidateField::EMAIL,
+        "numero" => ValidateField::INTEGER,
+    ])]
+    #[Details(["description" => "Cadastrar recurso"])]
+    public function post_recurso()
+    {
+        return HttpResponse::success("Sucesso", ["id" => 1, "nome" => "João"]);
+        // Exemplo de função POST
+    }
+
+    #[Method("PUT", "PATCH")]
+    #[RequiredParams([
+        "id" => ValidateField::INTEGER_IN_STRING
+    ])]
+    #[RequiredFields([
+        "email" => ValidateField::EMAIL
+    ])]
+    #[Details(["description" => "Atualizar recurso"])]
+    public function put_recurso()
+    {
+        // Exemplo de função PUT
+    }
+
+    #[Method("DELETE")]
+    #[RequiredParams([
+        "id" => ValidateField::INTEGER_IN_STRING
+    ])]
+    #[Details(["description" => "Deletar recurso"])]
+    public function delete_recurso()
+    {
+        // Exemplo de função DELETE
+    }
+
+    #[Method("OPTIONS")]
+    #[Details(["description" => "Listar opções"])]
+    public function options_recurso()
+    {
+        $controller = "index";
+        return HttpResponse::returnAttributes("Recurso", [
+            "Listar" => Request::getOptionsAttributes($controller, "get_recurso"),
+            "Cadastrar" => Request::getOptionsAttributes($controller, "post_recurso"),
+            "Atualizar" => Request::getOptionsAttributes($controller, "put_recurso"),
+            "Deletar" => Request::getOptionsAttributes($controller, "delete_recurso"),
+            "Listar opções" => Request::getOptionsAttributes($controller, "options_recurso"),
+        ]);
     }
 }
