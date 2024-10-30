@@ -5,52 +5,79 @@ namespace Bifrost\Attributes;
 use Attribute;
 use Bifrost\Class\HttpError;
 use Bifrost\Interface\AttributesInterface;
+use Bifrost\Include\AtrributesDefaultMethods;
+use Bifrost\Core\Get;
+use Bifrost\Enum\ValidateField;
 
 #[Attribute]
 class RequiredParams implements AttributesInterface
 {
+    use AtrributesDefaultMethods;
 
-    public function __construct(private mixed $params)
+    public static array $params = [];
+    private Get $Get;
+    private array $errors = [];
+
+    public function __construct(...$params)
     {
-        $this->validateRequiredParams($this->params);
+        self::$params = $params[0];
+        $this->Get = new Get();
     }
-
-    public function __destruct() {}
 
     public function beforeRun(): mixed
     {
+        if (!$this->validateRequiredParams(self::$params)) {
+            return HttpError::badRequest("Parâmetros inválidos", $this->getErrors());
+        }
         return null;
     }
 
-    public function afterRun($return): void {}
-
-    private function validateRequiredParams(array $params)
+    public function getOptions(): array
     {
-        foreach ($params as $field => $param) {
+        $params = [];
+        foreach (self::$params as $field => $filter) {
+            $params[$field] = $filter->value ?? null;
+        }
+        return ["Parâmetros" => $params];
+    }
+
+    private function validateRequiredParams(array $params): bool
+    {
+        $this->errors = [];
+
+        foreach ($params as $field => $filter) {
             if (is_int($field)) {
-                $field = $param;
-                $param = FILTER_DEFAULT;
+                $field = $filter;
+                $filter = validateField::DEFAULT;
             }
-            static::existParam($field);
-            static::validateType($field, $param);
+
+            if (!static::existParam($field)) {
+                $this->errors[$field] = "Campo não encontrado";
+            }
+
+            if (!static::validateType($field, $filter) && empty($this->errors[$field])) {
+                $this->errors[$field] = "Tipo de campo inválido";
+            }
         }
+
+        if (empty($this->errors)) {
+            return true;
+        }
+        return false;
     }
 
-    private function existParam($field)
+    private function getErrors(): array
     {
-        if (!isset($_GET[$field])) {
-            throw HttpError::badRequest("Parametro não encontrado", [
-                "fieldName" => $field,
-            ]);
-        }
+        return $this->errors;
     }
 
-    private function validateType($field, $param)
+    private function existParam(string $field): bool
     {
-        if (!filter_var($_GET[$field], $param)) {
-            throw HttpError::badRequest("Parametro inválido", [
-                "fieldName" => $field,
-            ]);
-        }
+        return isset($this->Get->$field);
+    }
+
+    private function validateType(string $field, ValidateField $filter): bool
+    {
+        return $filter->validate($this->Get->$field);
     }
 }

@@ -65,5 +65,24 @@ class HttpResponse
         return self::buildResponse(HttpStatusCode::NOT_FOUND, $message, $data);
     }
 
+    public static function options(array $methods = []): array
+    {
+        header("Access-Control-Allow-Methods: " . implode(", ", $methods));
+        return self::buildResponse(
+            statusCode: HttpStatusCode::OK,
+            message: "Allow Methods",
+            additionalInfo: ["methods" => $methods]
+        );
+    }
+
+    public static function returnAttributes(string $name, array $attributes): array
+    {
+        return self::buildResponse(
+            statusCode: HttpStatusCode::OK,
+            message: $name,
+            data: $attributes
+        );
+    }
+
     // Adicione outros métodos conforme necessário
 }

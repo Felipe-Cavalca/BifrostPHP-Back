@@ -3,42 +3,55 @@
 namespace Bifrost\Attributes;
 
 use Attribute;
-use Bifrost\Interface\AttributesInterface;
 use Bifrost\Class\HttpError;
+use Bifrost\Class\HttpResponse;
+use Bifrost\Include\AtrributesDefaultMethods;
+use Bifrost\Interface\AttributesInterface;
+use Bifrost\Core\Request;
+use Bifrost\Core\Get;
 
 #[Attribute]
 class Method implements AttributesInterface
 {
+    use AtrributesDefaultMethods;
 
-    public function __construct(private mixed $methods)
+    private static array $methods;
+    private Get $Get;
+
+    public function __construct(...$parms)
     {
-        if (is_array($this->methods)) {
-            $this->validateMethods($this->methods);
-        } else {
-            $this->validateMethod($this->methods);
-        }
+        self::$methods = $parms;
+        $this->Get = new Get();
     }
-
-    public function __destruct() {}
 
     public function beforeRun(): mixed
     {
+        if ($this->isOptions() && !in_array("OPTIONS", self::$methods)) {
+            return HttpResponse::returnAttributes(
+                name: "Informações do endpoint",
+                attributes: Request::getOptionsAttributes($this->Get->controller, $this->Get->action)
+            );
+        }
+
+        if (!$this->validateMethods(self::$methods)) {
+            return HttpError::methodNotAllowed("Method not allowed");
+        }
+
         return null;
     }
 
-    public function afterRun($return): void {}
-
-    private function validateMethods(array $methods)
+    public function getOptions(): array
     {
-        if (!in_array($_SERVER["REQUEST_METHOD"], $methods)) {
-            throw HttpError::methodNotAllowed("Method not allowed");
-        }
+        return ["Methods" => self::$methods];
     }
 
-    private function validateMethod(string $method)
+    public static function validateMethods(array $methods): bool
     {
-        if ($_SERVER["REQUEST_METHOD"] != $method) {
-            throw HttpError::methodNotAllowed("Method not allowed");
-        }
+        return in_array($_SERVER["REQUEST_METHOD"], $methods);
+    }
+
+    public static function isOptions(): bool
+    {
+        return self::validateMethods(["OPTIONS"]);
     }
 }
