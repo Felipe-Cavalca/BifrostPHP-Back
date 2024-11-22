@@ -71,4 +71,13 @@ class HttpError extends \Error
             additionalInfo: $additionalInfo
         );
     }
+
+    public static function unauthorized(string $details, array|string $data = []): HttpError
+    {
+        return new self(
+            statusCode: HttpStatusCode::UNAUTHORIZED,
+            details: $details,
+            data: $data
+        );
+    }
 }
