@@ -165,13 +165,7 @@ class Database
 
     private static function buildJoinQuery(array $join): string
     {
-        $joinStr = [];
-
-        foreach ($join as $j) {
-            $joinStr[] = implode(" ", $j);
-        }
-
-        return implode(" ", $joinStr);
+        return implode(" ", $join);
     }
 
     public function begin(): bool
