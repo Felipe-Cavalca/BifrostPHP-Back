@@ -1,2 +1,4 @@
 .phpdoc
 docs/*
+storage/*
+tmp/*

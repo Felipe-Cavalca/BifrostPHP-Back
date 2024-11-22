@@ -24,6 +24,7 @@ services:
     volumes:
       - ./:/var/www/html
       - bifrost-storage:/storage
+      - ./tmp:/var/log/xdebug
     networks:
       - bifrost-network
     depends_on:
