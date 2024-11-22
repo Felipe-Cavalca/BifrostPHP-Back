@@ -12,18 +12,14 @@ use Bifrost\Core\Request;
  */
 spl_autoload_register(
     function (string $className): bool {
-
-        $folders = explode("\\", $className);
-        $folders = array_slice($folders, 1);
-        $folders = implode(DIRECTORY_SEPARATOR, $folders);
-
-        $file = __DIR__ . DIRECTORY_SEPARATOR . $folders . ".php";
-
-        if (!file_exists($file)) {
-            return false;
+        $prefix = 'Bifrost\\';
+        if (strpos($className, $prefix) === 0) {
+            $className = substr($className, strlen($prefix));
         }
 
-        include_once $file;
+        $file = __DIR__ . DIRECTORY_SEPARATOR . str_replace("\\", DIRECTORY_SEPARATOR, $className) . ".php";
+
+        require_once $file;
         return true;
     }
 );
