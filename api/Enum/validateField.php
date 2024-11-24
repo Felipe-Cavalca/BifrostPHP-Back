@@ -2,7 +2,7 @@
 
 namespace Bifrost\Enum;
 
-enum ValidateField: string
+enum Field: string
 {
     case INTEGER = 'Número inteiro';
     case INTEGER_IN_STRING = 'Número inteiro em string';
