@@ -9,7 +9,7 @@ DirectoryIndex index.php
 RewriteEngine On
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteRule ^([^/]+)/([^/]+)(/.*)?$ index.php?_controller=$1&_action=$2&_params=$3 [QSA,L]
+RewriteRule ^([^/]+)(/([^/]+))?(/.*)?$ index.php?_controller=$1&_action=$3&_params=$4 [QSA,L]
 
 #bloqueando listagem de diretorios
 Options -Indexes
