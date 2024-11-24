@@ -51,7 +51,7 @@ class Cache implements AttributesInterface
     public function getOptions(): array
     {
         return ["Cache" => [
-            "tempo" => $this->time,
+            "seconds" => $this->time,
         ]];
     }
 

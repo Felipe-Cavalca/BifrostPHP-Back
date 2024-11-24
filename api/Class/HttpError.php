@@ -80,4 +80,13 @@ class HttpError extends \Error
             data: $data
         );
     }
+
+    public static function forbidden(string $details, array|string $data = []): HttpError
+    {
+        return new self(
+            statusCode: HttpStatusCode::FORBIDDEN,
+            details: $details,
+            data: $data
+        );
+    }
 }
