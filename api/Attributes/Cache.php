@@ -27,8 +27,8 @@ class Cache implements AttributesInterface
         $this->session = new Session();
         $this->key = serialize([
             "key" => $p[0],
-            "POST" => $post,
-            "GET" => $get,
+            "POST" => (string)$post,
+            "GET" => (string)$get,
             "SESSION" => $this->getFieldsSession($p[2] ?? []),
         ]);
         $this->time = $p[1];
