@@ -25,12 +25,12 @@ class User
 
     public function getById(int $id)
     {
-        return $this->serach(["id" => $id])[0] ?? [];
+        return $this->search(["id" => $id])[0] ?? [];
     }
 
     public function getByEmail(string $email)
     {
-        return $this->serach(["email" => $email])[0] ?? [];
+        return $this->search(["email" => $email])[0] ?? [];
     }
 
     public function getAll()
@@ -38,7 +38,7 @@ class User
         return $this->database->list("SELECT * FROM $this->table");
     }
 
-    public function serach(array $conditions)
+    public function search(array $conditions)
     {
         $sql = "SELECT * FROM $this->table WHERE " . $this->database->where($conditions);
         return $this->database->list($sql, $conditions);
