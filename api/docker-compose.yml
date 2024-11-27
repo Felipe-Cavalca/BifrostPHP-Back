@@ -1,3 +1,32 @@
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "28080:80"
+    env_file:
+      - .env
+    volumes:
+      - bifrost-storage:/storage
+      - ./:/var/www/html # DEV
+      - ./tmp:/var/log/xdebug # DEV
+    networks:
+      - bifrost-network
+    depends_on:
+      - redis
+    mem_limit: 512m
+    cpus: '0.25'
+
+  redis:
+    image: redis:alpine3.20
+    volumes:
+      - bifrost-redis_data:/data
+    networks:
+      - bifrost-network
+    mem_limit: 1024m
+    cpus: '0.25'
+
 volumes:
   bifrost-storage:
     name: bifrost-storage
@@ -11,28 +40,3 @@ volumes:
 networks:
   bifrost-network:
     name: bifrost-network
-
-services:
-  api:
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    ports:
-      - "28080:80"
-    env_file:
-      - .env
-    volumes:
-      - ./:/var/www/html
-      - bifrost-storage:/storage
-      - ./tmp:/var/log/xdebug
-    networks:
-      - bifrost-network
-    depends_on:
-      - redis
-
-  redis:
-    image: redis:latest
-    volumes:
-      - bifrost-redis_data:/data
-    networks:
-      - bifrost-network
