@@ -27,11 +27,14 @@ class HttpError extends \Error
 
     public function __toString(): string
     {
+        $additionalInfo = array_merge($this->additionalInfo, [
+            "help" => "for more information send this request with OPTIONS method"
+        ]);
         return json_encode(HttpResponse::buildResponse(
             statusCode: $this->statusCode,
             message: $this->details,
             data: $this->data,
-            additionalInfo: $this->additionalInfo
+            additionalInfo: $additionalInfo
         ));
     }
 
@@ -76,6 +79,15 @@ class HttpError extends \Error
     {
         return new self(
             statusCode: HttpStatusCode::UNAUTHORIZED,
+            details: $details,
+            data: $data
+        );
+    }
+
+    public static function forbidden(string $details, array|string $data = []): HttpError
+    {
+        return new self(
+            statusCode: HttpStatusCode::FORBIDDEN,
             details: $details,
             data: $data
         );

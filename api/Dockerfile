@@ -15,28 +15,10 @@ RUN apt-get update && apt-get install -y libpq-dev \
 # instalando a extensão PHP Redis
 RUN pecl install redis && docker-php-ext-enable redis
 
-# instalando a extensão PHP Xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug
-
 # Configurando o php.ini para aumentar o tamanho máximo de upload e POST
 RUN echo "upload_max_filesize = 1G" >> /usr/local/etc/php/php.ini
 RUN echo "post_max_size = 1G" >> /usr/local/etc/php/php.ini
 RUN echo "memory_limit = 1G" >> /usr/local/etc/php/php.ini
-
-# Configurando o Xdebug
-RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.mode=debug,develop" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.client_port=9003" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.log_level=7" >> /usr/local/etc/php/php.ini
-
-# Configurando o diretório para salvar os arquivos de perfil
-RUN mkdir -p /var/log/xdebug
-RUN echo "xdebug.output_dir=/var/log/xdebug" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.profiler_output_name=callgrind.out.%t" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.profiler_enable_trigger=1" >> /usr/local/etc/php/php.ini
 
 RUN service apache2 restart
 
