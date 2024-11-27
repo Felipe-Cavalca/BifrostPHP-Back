@@ -44,12 +44,12 @@ final class Request
     {
         try {
             if (!self::validateControllerName($controllerName)) {
-                throw HttpError::notFound("Action not found", ["path" => $actionName]);
+                return HttpError::notFound("Action not found", ["path" => $controllerName]);
             }
             $objController = self::loadController($controllerName);
 
             if (!self::validateActionName($objController, $actionName)) {
-                throw HttpError::notFound("Action not found", ["path" => $controllerName . "/" . $actionName]);
+                return HttpError::notFound("Action not found", ["path" => $controllerName . "/" . $actionName]);
             }
 
             $reflectionMethod = new ReflectionMethod($objController, $actionName);
@@ -70,8 +70,9 @@ final class Request
 
     private static function validateControllerName(string $controller): bool
     {
+        $nameController = './Controller/' . $controller . ".php";
         $controller = Path::CONTROLLERS->value . $controller;
-        if (!class_exists($controller)) {
+        if (!is_readable($nameController) || !class_exists($controller)) {
             return false;
         }
         return true;
