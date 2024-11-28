@@ -11,7 +11,7 @@ class Get
     public function __construct()
     {
         if (! $_GET instanceof Get) {
-            self::$controller = $_GET["_controller"];
+            self::$controller = $_GET["_controller"] ?? "index";
             self::$action = empty($_GET["_action"]) ? "index" : $_GET["_action"];
             unset($_GET["_controller"], $_GET["_action"]);
             self::$data = $_GET;
