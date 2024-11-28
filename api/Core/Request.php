@@ -43,7 +43,7 @@ final class Request
     public static function run(string $controllerName, string $actionName): mixed
     {
         try {
-            if (!self::validateControllerName($controllerName)) {
+            if (empty($controller) || !self::validateControllerName($controllerName)) {
                 return HttpError::notFound("Action not found", ["path" => $controllerName]);
             }
             $objController = self::loadController($controllerName);
