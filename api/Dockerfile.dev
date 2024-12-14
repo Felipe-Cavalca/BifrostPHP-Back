@@ -38,6 +38,11 @@ RUN echo "xdebug.output_dir=/var/log/xdebug" >> /usr/local/etc/php/php.ini
 RUN echo "xdebug.profiler_output_name=callgrind.out.%t" >> /usr/local/etc/php/php.ini
 RUN echo "xdebug.profiler_enable_trigger=1" >> /usr/local/etc/php/php.ini
 
+# Criando o diretório de sessões e configurando permissões
+RUN mkdir -p /var/lib/php/sessions
+RUN chown -R www-data:www-data /var/lib/php/sessions
+RUN echo "session.save_path = /var/lib/php/sessions" >> /usr/local/etc/php/php.ini
+
 RUN service apache2 restart
 
 EXPOSE 80
