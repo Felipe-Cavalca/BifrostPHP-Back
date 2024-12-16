@@ -7,6 +7,10 @@ COPY ./ /var/www/html
 RUN a2enmod rewrite
 RUN a2enmod headers
 RUN docker-php-ext-install pdo_mysql
+RUN apt-get update && apt-get install -y \
+    zip \
+    unzip \
+    git
 
 # Instalando a extensão PDO para PostgreSQL
 RUN apt-get update && apt-get install -y libpq-dev \
@@ -15,22 +19,10 @@ RUN apt-get update && apt-get install -y libpq-dev \
 # instalando a extensão PHP Redis
 RUN pecl install redis && docker-php-ext-enable redis
 
-# instalando a extensão PHP Xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug
-
 # Configurando o php.ini para aumentar o tamanho máximo de upload e POST
 RUN echo "upload_max_filesize = 1G" >> /usr/local/etc/php/php.ini
 RUN echo "post_max_size = 1G" >> /usr/local/etc/php/php.ini
 RUN echo "memory_limit = 1G" >> /usr/local/etc/php/php.ini
-
-# Configurando o Xdebug
-RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.mode=debug,develop" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.client_port=9003" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/php.ini
-RUN echo "xdebug.log_level=7" >> /usr/local/etc/php/php.ini
 
 # Configurando o diretório para salvar os arquivos de perfil
 RUN mkdir -p /var/log/xdebug
@@ -42,6 +34,35 @@ RUN echo "xdebug.profiler_enable_trigger=1" >> /usr/local/etc/php/php.ini
 RUN mkdir -p /var/lib/php/sessions
 RUN chown -R www-data:www-data /var/lib/php/sessions
 RUN echo "session.save_path = /var/lib/php/sessions" >> /usr/local/etc/php/php.ini
+
+# instalando a extensão PHP Xdebug
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
+# Configurando o Xdebug
+RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.mode=debug,develop" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.client_port=9003" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/php.ini
+RUN echo "xdebug.log_level=7" >> /usr/local/etc/php/php.ini
+
+# Instalando o Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && mv composer.phar /usr/local/bin/composer
+
+# Adicionando o PHPUnit ao projeto via Composer
+COPY composer.json /var/www/html/composer.json
+WORKDIR /var/www/html
+RUN composer global require phpunit/phpunit:^9.5
+
+# Adicionando o Composer global bin ao PATH
+ENV PATH="/root/.composer/vendor/bin:${PATH}"
+
+# Instalando dependências do Composer
+RUN composer install
 
 RUN service apache2 restart
 
