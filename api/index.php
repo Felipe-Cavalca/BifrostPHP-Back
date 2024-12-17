@@ -18,7 +18,6 @@ spl_autoload_register(
         }
 
         $file = __DIR__ . DIRECTORY_SEPARATOR . str_replace("\\", DIRECTORY_SEPARATOR, $className) . ".php";
-
         require_once $file;
         return true;
     }

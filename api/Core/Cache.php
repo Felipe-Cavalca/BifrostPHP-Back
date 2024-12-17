@@ -10,6 +10,7 @@
 namespace Bifrost\Core;
 
 use Redis;
+use Bifrost\Core\Settings;
 
 /**
  * It is responsible for managing the cache.
@@ -40,8 +41,9 @@ class Cache
      */
     private static function conn(): void
     {
+        $settings = new Settings();
         self::$redis = new Redis();
-        self::$redis->connect('redis', 6379);
+        self::$redis->connect($settings->REDIS_HOST, $settings->REDIS_PORT);
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace Bifrost\Core;
 
 use PDO;
-use DateTime;
 use PDOException;
 use Bifrost\Core\Functions;
 use Bifrost\Core\Settings;
