@@ -1,12 +1,6 @@
-# BifrostPHP - Front-end Module
+# BifrostPHP - Back-end Module
 
 [![Repo](https://img.shields.io/badge/Bifrost-Back-blue)](./)
-
-[![GIT](https://img.shields.io/badge/GIT-orange)](./)
-[![MD](https://img.shields.io/badge/MD-darkblue)](./)
-[![YML](https://img.shields.io/badge/YML-darkblue)](./)
-[![PHP](https://img.shields.io/badge/PHP-blue)](./)
-[![SQL](https://img.shields.io/badge/SQL-orange)](./)
 
 [![link-readme-inglês](https://img.shields.io/badge/README-English/Inglês-red)](./README.md)
 [![link-readme-Portugês](https://img.shields.io/badge/README-Portuguese/Portugês-green)](./README-PT.md)
