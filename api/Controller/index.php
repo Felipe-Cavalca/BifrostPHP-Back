@@ -15,7 +15,7 @@ use Bifrost\Core\Settings;
 use Bifrost\Enum\HttpStatusCode;
 use Bifrost\Include\Controller;
 use Bifrost\Interface\ControllerInterface;
-use Bifrost\Enum\ValidateField;
+use Bifrost\Enum\Field;
 
 class Index implements ControllerInterface
 {
@@ -74,7 +74,7 @@ class Index implements ControllerInterface
     #[Method("GET")]
     #[Cache("index-get_recurso", 10)]
     #[RequiredParams([
-        "id" => ValidateField::INTEGER_IN_STRING
+        "id" => Field::INTEGER_IN_STRING
     ])]
     #[Details(["description" => "Listar recurso"])]
     public function get_recurso()
@@ -85,11 +85,11 @@ class Index implements ControllerInterface
     #[Method("POST")]
     #[Cache("index-post_recurso", 10)]
     #[RequiredParams([
-        "id" => ValidateField::INTEGER_IN_STRING
+        "id" => Field::INTEGER_IN_STRING
     ])]
     #[RequiredFields([
-        "email" => ValidateField::EMAIL,
-        "numero" => ValidateField::INTEGER,
+        "email" => Field::EMAIL,
+        "numero" => Field::INTEGER,
     ])]
     #[Details(["description" => "Cadastrar recurso"])]
     public function post_recurso()
@@ -100,10 +100,10 @@ class Index implements ControllerInterface
 
     #[Method("PUT", "PATCH")]
     #[RequiredParams([
-        "id" => ValidateField::INTEGER_IN_STRING
+        "id" => Field::INTEGER_IN_STRING
     ])]
     #[RequiredFields([
-        "email" => ValidateField::EMAIL
+        "email" => Field::EMAIL
     ])]
     #[Details(["description" => "Atualizar recurso"])]
     public function put_recurso()
@@ -113,7 +113,7 @@ class Index implements ControllerInterface
 
     #[Method("DELETE")]
     #[RequiredParams([
-        "id" => ValidateField::INTEGER_IN_STRING
+        "id" => Field::INTEGER_IN_STRING
     ])]
     #[Details(["description" => "Deletar recurso"])]
     public function delete_recurso()

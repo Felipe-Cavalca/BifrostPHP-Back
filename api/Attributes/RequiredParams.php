@@ -7,7 +7,7 @@ use Bifrost\Class\HttpError;
 use Bifrost\Interface\AttributesInterface;
 use Bifrost\Include\AtrributesDefaultMethods;
 use Bifrost\Core\Get;
-use Bifrost\Enum\ValidateField;
+use Bifrost\Enum\Field;
 
 #[Attribute]
 class RequiredParams implements AttributesInterface
@@ -48,7 +48,7 @@ class RequiredParams implements AttributesInterface
         foreach ($params as $field => $filter) {
             if (is_int($field)) {
                 $field = $filter;
-                $filter = validateField::DEFAULT;
+                $filter = Field::DEFAULT;
             }
 
             if (!static::existParam($field)) {
@@ -76,7 +76,7 @@ class RequiredParams implements AttributesInterface
         return isset($this->Get->$field);
     }
 
-    private function validateType(string $field, ValidateField $filter): bool
+    private function validateType(string $field, Field $filter): bool
     {
         return $filter->validate($this->Get->$field);
     }
