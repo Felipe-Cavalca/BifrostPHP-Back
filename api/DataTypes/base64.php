@@ -9,7 +9,7 @@ class Base64
 {
     use AbstractFieldValue;
 
-    public function __construct(string $base64)
+    public function __construct(mixed $base64)
     {
         $this->init($base64, Field::BASE64);
     }

@@ -9,7 +9,7 @@ class FilePath
 {
     use AbstractFieldValue;
 
-    public function __construct(string $filePath)
+    public function __construct(mixed $filePath)
     {
         $this->init($filePath, Field::FILE_PATH);
     }

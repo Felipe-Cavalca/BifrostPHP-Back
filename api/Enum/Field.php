@@ -19,6 +19,7 @@ enum Field: string
     case URL = 'Url';
     case BASE64 = 'Base64';
     case FILE_PATH = 'Caminho de arquivo';
+    case JSON = 'JSON';
 
     public function validate($val): bool
     {
@@ -37,6 +38,7 @@ enum Field: string
             self::URL => filter_var($val, FILTER_VALIDATE_URL) !== false,
             self::BASE64 => is_string($val) && base64_decode($val, true) !== false,
             self::FILE_PATH => is_string($val),
+            self::JSON => json_decode($val) !== null,
             default => false,
         };
     }

@@ -9,7 +9,7 @@ trait AbstractFieldValue
 {
     protected mixed $value;
 
-    public function init(string $value, Field $field): static
+    public function init(mixed $value, Field $field): static
     {
         if (!$field->validate($value) || !$this->customValidate($value)) {
             throw new InvalidArgumentException("Valor inválido para o tipo: {$field->name}");
@@ -24,14 +24,14 @@ trait AbstractFieldValue
         return $this->value;
     }
 
-    protected function validateField(Field $field, string $value): void
+    protected function validateField(Field $field, mixed $value): void
     {
         if (!$field->validate($value)) {
             throw new InvalidArgumentException("Valor inválido para o tipo: {$field->name}");
         }
     }
 
-    protected function customValidate(string $value): bool
+    protected function customValidate(mixed $value): bool
     {
         return true; // por padrão
     }

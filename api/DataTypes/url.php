@@ -9,7 +9,7 @@ class Url
 {
     use AbstractFieldValue;
 
-    public function __construct(string $url)
+    public function __construct(mixed $url)
     {
         $this->init($url, Field::URL);
     }
