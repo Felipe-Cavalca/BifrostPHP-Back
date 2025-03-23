@@ -127,7 +127,7 @@ final class Settings
      * @uses Settings::getEnv()
      * @return array
      */
-    public function getSettingsDatabase(string $databaseName = null): array
+    public function getSettingsDatabase(?string $databaseName = null): array
     {
         if (!empty($databaseName)) {
             $databaseName = strtoupper($databaseName) . "_";
