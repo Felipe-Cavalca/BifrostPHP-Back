@@ -19,7 +19,7 @@ class Database
     private static ?Settings $settings = null;
     private PDO $conn;
 
-    public function __construct(string $databaseName = null)
+    public function __construct(?string $databaseName = null)
     {
         self::$settings = new Settings();
         $this->conn = self::$connections[$databaseName] ?? $this->conn($databaseName);
@@ -41,7 +41,7 @@ class Database
         }
     }
 
-    private function conn(string $databaseName = null): PDO
+    private function conn(?string $databaseName = null): PDO
     {
         $dataConn = self::$settings->getSettingsDatabase($databaseName);
 
@@ -252,12 +252,12 @@ class Database
     public function select(
         string $table,
         array|string $fields = "*",
-        array $join = null,
-        array|string $where = null,
-        string $group = null,
-        string|array $having = null,
-        string $order = null,
-        string $limit = null
+        ?array $join = null,
+        null|array|string $where = null,
+        ?string $group = null,
+        null|array|string $having = null,
+        ?string $order = null,
+        ?string $limit = null
     ): array {
         $sql = $this->buildSelectQuery($table, $fields);
 
@@ -372,22 +372,22 @@ class Database
     }
 
     public function query(
-        string|array $select = null,
-        array $insert = null,
-        string $update = null,
-        string $delete = null,
-        string $into = null,
-        string $from = null,
-        array $set = null,
-        string|array $where = null,
-        string|array $join = null,
-        string $order = null,
-        string $limit = null,
-        string|array $having = null,
-        string $group = null,
-        string $returning = null,
-        string $query = null,
-        array $params = []
+        null|array|string $select = null,
+        ?array $insert = null,
+        ?string $update = null,
+        ?string $delete = null,
+        ?string $into = null,
+        ?string $from = null,
+        ?array $set = null,
+        null|array|string $where = null,
+        null|array|string $join = null,
+        ?string $order = null,
+        ?string $limit = null,
+        null|array|string $having = null,
+        ?string $group = null,
+        ?string $returning = null,
+        ?string $query = null,
+        ?array $params = []
     ): array|bool {
 
         if (!empty($query)) {
@@ -429,5 +429,7 @@ class Database
                 where: $where
             );
         }
+
+        return false;
     }
 }
