@@ -48,7 +48,8 @@ class Storage
         return new ResponseStorage(json_decode($response, true));
     }
 
-    public function get(FilePath $file): ResponseStorage {
+    public function get(FilePath $file): ResponseStorage
+    {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $this->url . $file);
@@ -69,5 +70,25 @@ class Storage
         return new ResponseStorage(json_decode($response, true));
     }
 
-    public function delete(FilePath $file) {}
+    public function delete(FilePath $file): ResponseStorage
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->url . $file);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->auth,
+        ]);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            throw new \Exception('Curl error: ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+
+        return new ResponseStorage(json_decode($response, true));
+    }
 }
