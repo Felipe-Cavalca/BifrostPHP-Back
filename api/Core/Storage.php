@@ -32,14 +32,15 @@ class Storage
             "base64Content" => (string) $base64
         ]));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->auth,
-            'Content-Type: application/json',
+            "Authorization: Bearer " . $this->auth,
+            "Content-Type: application/json",
+            "Sync-Upload: true"
         ]);
 
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new \Exception('Curl error: ' . curl_error($ch));
+            throw new \Exception("Curl error: " . curl_error($ch));
         }
 
         curl_close($ch);
