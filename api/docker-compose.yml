@@ -2,21 +2,25 @@ services:
   api:
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.dev
     ports:
-      - "28080:80"
+      - "80:80"
     env_file:
       - .env
     volumes:
-      - bifrost-storage:/storage
       - ./:/var/www/html # DEV
       - ./tmp:/var/log/xdebug # DEV
     networks:
       - bifrost-network
-    depends_on:
-      - redis
-    mem_limit: 512m
-    cpus: '0.25'
+
+  bifrost-storage:
+    image: ghcr.io/felipe-cavalca/bifrostphp-storage:latest
+    env_file:
+      - .env
+    volumes:
+      - bifrost-storage:/disks/ssd_1
+    networks:
+      - bifrost-network
 
   redis:
     image: redis:alpine3.20
@@ -24,19 +28,10 @@ services:
       - bifrost-redis_data:/data
     networks:
       - bifrost-network
-    mem_limit: 1024m
-    cpus: '0.25'
 
 volumes:
   bifrost-storage:
-    name: bifrost-storage
-    labels:
-      com.description: "This volume is used for data storage"
   bifrost-redis_data:
-    name: bifrost-redis_data
-    labels:
-      com.description: "This volume is used for Redis"
 
 networks:
   bifrost-network:
-    name: bifrost-network

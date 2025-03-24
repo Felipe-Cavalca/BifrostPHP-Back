@@ -16,6 +16,10 @@ enum Field: string
     case CPF = 'Cpf';
     case CNPJ = 'Cnpj';
     case EMAIL = 'Email';
+    case URL = 'Url';
+    case BASE64 = 'Base64';
+    case FILE_PATH = 'Caminho de arquivo';
+    case JSON = 'JSON';
 
     public function validate($val): bool
     {
@@ -30,23 +34,72 @@ enum Field: string
             self::NULL => is_null($val),
             self::CPF => self::validateCPF($val),
             self::CNPJ => self::validateCNPJ($val),
-            self::EMAIL => self::validateEmail($val),
+            self::EMAIL => filter_var($val, FILTER_VALIDATE_EMAIL) !== false,
+            self::URL => filter_var($val, FILTER_VALIDATE_URL) !== false,
+            self::BASE64 => is_string($val) && base64_decode($val, true) !== false,
+            self::FILE_PATH => is_string($val),
+            self::JSON => json_decode($val) !== null,
             default => false,
         };
     }
 
     private static function validateCPF($val): bool
     {
-        return preg_match('/^\d{3}\.\d{3}\.\d{3}-\d{2}$/', $val) === 1;
+        $val = preg_replace('/\D/', '', $val);
+
+        if (strlen($val) != 11) {
+            return false;
+        }
+
+        $sum = 0;
+        for ($i = 0; $i < 9; $i++) {
+            $sum += $val[$i] * (10 - $i);
+        }
+        $firstDigit = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+        if ($val[9] != $firstDigit) {
+            return false;
+        }
+
+        $sum = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $sum += $val[$i] * (11 - $i);
+        }
+        $secondDigit = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+        if ($val[10] != $secondDigit) {
+            return false;
+        }
+
+        return true;
     }
 
     private static function validateCNPJ($val): bool
     {
-        return preg_match('/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/', $val) === 1;
-    }
+        $val = preg_replace('/\D/', '', $val);
 
-    private static function validateEmail($val): bool
-    {
-        return filter_var($val, FILTER_VALIDATE_EMAIL) !== false;
+        if (strlen($val) != 14) {
+            return false;
+        }
+
+        $sum = 0;
+        $weights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        for ($i = 0; $i < 12; $i++) {
+            $sum += $val[$i] * $weights[$i];
+        }
+        $firstDigit = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+        if ($val[12] != $firstDigit) {
+            return false;
+        }
+
+        $sum = 0;
+        $weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        for ($i = 0; $i < 13; $i++) {
+            $sum += $val[$i] * $weights[$i];
+        }
+        $secondDigit = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+        if ($val[13] != $secondDigit) {
+            return false;
+        }
+
+        return true;
     }
 }
