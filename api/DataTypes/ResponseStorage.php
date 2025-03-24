@@ -14,6 +14,11 @@ class ResponseStorage
         $this->init($response, Field::ARRAY);
     }
 
+    public function __toString(): string
+    {
+        return json_encode($this->value);
+    }
+
     public function customValidate(mixed $response): bool
     {
         return isset($response['status']) && isset($response['message']);
