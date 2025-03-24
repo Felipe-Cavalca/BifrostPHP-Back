@@ -2,7 +2,7 @@
 
 namespace Bifrost\Include;
 
-use InvalidArgumentException;
+use Bifrost\Class\HttpError;
 use Bifrost\Enum\Field;
 
 trait AbstractFieldValue
@@ -12,7 +12,10 @@ trait AbstractFieldValue
     public function init(mixed $value, Field $field): static
     {
         if (!$field->validate($value) || !$this->customValidate($value)) {
-            throw new InvalidArgumentException("Valor inválido para o tipo: {$field->name}");
+            throw HttpError::internalServerError("Houve um erro ao validar o campo {$field->name}", [
+                "value" => $value,
+                "field" => $field
+            ]);
         }
 
         $this->value = $value;
@@ -27,7 +30,10 @@ trait AbstractFieldValue
     protected function validateField(Field $field, mixed $value): void
     {
         if (!$field->validate($value)) {
-            throw new InvalidArgumentException("Valor inválido para o tipo: {$field->name}");
+            throw HttpError::internalServerError("Houve um erro ao validar o campo {$field->name}", [
+                "value" => $value,
+                "field" => $field
+            ]);
         }
     }
 

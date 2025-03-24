@@ -65,6 +65,12 @@ final class Request
             return $return;
         } catch (HttpError $erro) {
             return $erro;
+        } catch (\Exception $erro) {
+            return HttpError::internalServerError($erro->getMessage());
+        } catch (\Error $erro) {
+            return HttpError::internalServerError($erro->getMessage());
+        } catch (\TypeError $erro) {
+            return HttpError::internalServerError($erro->getMessage());
         }
     }
 
