@@ -45,4 +45,9 @@ class Session
     {
         unset(self::$data[$name]);
     }
+
+    public function destroy(): void
+    {
+        session_destroy();
+    }
 }
