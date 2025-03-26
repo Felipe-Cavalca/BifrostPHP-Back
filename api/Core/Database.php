@@ -97,6 +97,8 @@ class Database
                 if (is_string($value)) {
                     $value = Functions::sanitize($value);
                     $values[] = "'{$value}'";
+                } elseif (is_null($value)) {
+                    $values[] = "NULL";
                 } else {
                     $values[] = "{$value}";
                 }
