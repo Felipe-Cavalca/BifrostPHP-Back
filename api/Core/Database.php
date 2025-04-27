@@ -389,15 +389,17 @@ class Database
         ?string $group = null,
         ?string $returning = null,
         ?string $query = null,
-        ?array $params = []
+        ?array $params = [],
+        ?bool $returnFirst = false
     ): array|bool {
 
         if (!empty($query)) {
-            return $this->executeQuery($query, $params);
+            $result = $this->executeQuery($query, $params);
+            return $returnFirst ? $result[0] : $result;
         }
 
         if (!empty($select)) {
-            return $this->select(
+            $result = $this->select(
                 fields: $select,
                 table: $from,
                 join: $join,
@@ -407,6 +409,7 @@ class Database
                 order: $order,
                 limit: $limit
             );
+            return $returnFirst ? $result[0] : $result;
         }
 
         if (!empty($insert)) {
