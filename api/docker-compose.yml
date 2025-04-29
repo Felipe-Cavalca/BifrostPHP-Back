@@ -1,37 +1,68 @@
 services:
+
   api:
     build:
       context: ./
       dockerfile: ./Dockerfile.dev
     ports:
       - "80:80"
-    env_file:
-      - .env
+    environment:
+      # Configurações do php
+      - PHP_DISPLAY_ERRORS: 0
+      - PHP_DISPLAY_STARTUP_ERRORS: 0
+
+      # Configurações da sessão
+      - PHP_SESSION_SAVE_HANDLER: redis
+      - PHP_SESSION_SAVE_PATH: tcp://redis:6379
+      - PHP_SESSION_GC_MAXLIFETIME: 43200
+      - PHP_SESSION_COOKIE_LIFETIME: 43200
+
+      # Configuração do redis para cache e session
+      - REDIS_HOST: redis
+      - REDIS_PORT: 6379
+
+      # Configuração de conexao com o storage
+      - STORAGE_HOST: http://bifrost-storage:80
+      - STORAGE_API_KEY: 1234
+
+      # Configuração de banco de dados
+      - SQL_DRIVER: PostgreSQL
+      - SQL_HOST: database
+      - SQL_PORT: 5432
+      - SQL_DATABASE: bifrost
+      - SQL_USER: bifrost
+      - SQL_PASSWORD: passwordBifrost
     volumes:
       - ./:/var/www/html # DEV
       - ./tmp:/var/log/xdebug # DEV
     networks:
-      - bifrost-network
+      - bifrost-back-network
 
   bifrost-storage:
     image: ghcr.io/felipe-cavalca/bifrostphp-storage:latest
-    env_file:
-      - .env
+    environment:
+      # Configurações do storage
+      - FAILOVER_TOLERANCE: 0
+      - DIR_DISKS: /disks
+      - AUTH_BIFROST: 1234
+
+      # Configuração do redis para fila
+      - REDIS_HOST: redis
+      - REDIS_PORT: 6379
     volumes:
       - bifrost-storage:/disks/ssd_1
     networks:
-      - bifrost-network
+      - bifrost-back-network
 
   redis:
     image: redis:alpine3.20
     volumes:
       - bifrost-redis_data:/data
     networks:
-      - bifrost-network
+      - bifrost-back-network
 
 volumes:
   bifrost-storage:
-  bifrost-redis_data:
 
 networks:
-  bifrost-network:
+  bifrost-back-network:
