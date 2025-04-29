@@ -54,6 +54,13 @@ services:
     networks:
       - bifrost-back-network
 
+  bifrost-tests:
+    image: ghcr.io/felipe-cavalca/bifrostphp-tests:1.2.1-7
+    ports:
+      - "81:80"
+    volumes:
+       - ./tests:/tests
+
   redis:
     image: redis:alpine3.20
     volumes:
