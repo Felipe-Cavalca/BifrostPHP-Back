@@ -37,6 +37,8 @@ services:
       - ./tmp:/var/log/xdebug # DEV
     networks:
       - bifrost-back-network
+    mem_limit: 256m
+    cpus: '0.25'
 
   bifrost-storage:
     image: ghcr.io/felipe-cavalca/bifrostphp-storage:latest
@@ -53,6 +55,8 @@ services:
       - bifrost-storage:/disks/ssd_1
     networks:
       - bifrost-back-network
+    mem_limit: 256m
+    cpus: '0.25'
 
   bifrost-tests:
     image: ghcr.io/felipe-cavalca/bifrostphp-tests:1.2.1-7
@@ -60,6 +64,8 @@ services:
       - "81:80"
     volumes:
        - ./tests:/tests
+    mem_limit: 256m
+    cpus: '0.25'
 
   redis:
     image: redis:alpine3.20
