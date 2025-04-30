@@ -10,6 +10,10 @@ use Bifrost\Interface\AttributesInterface;
 use Bifrost\Core\Request;
 use Bifrost\Core\Get;
 
+/**
+ * Método da requisição HTTP.
+ * @param string ...$parms - Métodos permitidos para o endpoint.
+ */
 #[Attribute]
 class Method implements AttributesInterface
 {
@@ -24,8 +28,13 @@ class Method implements AttributesInterface
         $this->Get = new Get();
     }
 
+    /**
+     * Classifica o método da requisição e retorna os detalhes do endpoint.
+     * @return mixed - Detalhes do endpoint ou erro de método não permitido.
+     */
     public function beforeRun(): mixed
     {
+        // Caso o método seja OPTIONS e o endpoint não receba o OPTIONS retorna os dados do endpoint.
         if ($this->isOptions() && !in_array("OPTIONS", self::$methods)) {
             return HttpResponse::returnAttributes(
                 name: "Informações do endpoint",
@@ -33,6 +42,7 @@ class Method implements AttributesInterface
             );
         }
 
+        // Valida se o método da requisição é permitido.
         if (!$this->validateMethods(self::$methods)) {
             return HttpError::methodNotAllowed("Method not allowed");
         }
@@ -40,16 +50,29 @@ class Method implements AttributesInterface
         return null;
     }
 
+    /**
+     * Retorna os métodos permitidos para o endpoint.
+     * @return array - Métodos permitidos para o endpoint.
+     */
     public function getOptions(): array
     {
         return ["Methods" => self::$methods];
     }
 
+    /**
+     * Valida se o método da requisição é permitido.
+     * @param array $methods - Métodos permitidos para o endpoint.
+     * @return bool - Retorna true se o método da requisição for permitido, caso contrário false.
+     */
     public static function validateMethods(array $methods): bool
     {
         return in_array($_SERVER["REQUEST_METHOD"], $methods);
     }
 
+    /**
+     * Valida se o método da requisição é OPTIONS.
+     * @return bool - Retorna true se o método da requisição for OPTIONS, caso contrário false.
+     */
     public static function isOptions(): bool
     {
         return self::validateMethods(["OPTIONS"]);
