@@ -64,6 +64,8 @@ services:
       - "81:80"
     volumes:
        - ./tests:/tests
+    networks:
+      - bifrost-back-network
     mem_limit: 256m
     cpus: '0.25'
 
