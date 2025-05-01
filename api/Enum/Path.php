@@ -2,6 +2,9 @@
 
 namespace Bifrost\Enum;
 
+/**
+ * Enum para representar os caminhos de classes no Bifrost.
+ */
 enum Path: string
 {
     case CLASSE = "Bifrost\\Class\\";

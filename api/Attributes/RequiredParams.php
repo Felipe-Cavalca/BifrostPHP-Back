@@ -9,6 +9,11 @@ use Bifrost\Include\AtrributesDefaultMethods;
 use Bifrost\Core\Get;
 use Bifrost\Enum\Field;
 
+/**
+ * Parâmetros obrigatórios para o endpoint.
+ * @param array $params - Parâmetros obrigatórios para o endpoint.
+ * Recebe o array sendo o índice no GET e o valor o tipo do campo.
+ */
 #[Attribute]
 class RequiredParams implements AttributesInterface
 {
@@ -24,6 +29,10 @@ class RequiredParams implements AttributesInterface
         $this->Get = new Get();
     }
 
+    /**
+     * Valida os parâmetros obrigatórios e retorna erro caso algum parâmetro não seja válido.
+     * @return mixed - Erro de requisição ou null caso não tenha erro.
+     */
     public function beforeRun(): mixed
     {
         if (!$this->validateRequiredParams(self::$params)) {
@@ -32,6 +41,10 @@ class RequiredParams implements AttributesInterface
         return null;
     }
 
+    /**
+     * Retorna os parâmetros obrigatórios para o endpoint.
+     * @return array - Parâmetros obrigatórios para o endpoint.
+     */
     public function getOptions(): array
     {
         $params = [];
@@ -41,6 +54,11 @@ class RequiredParams implements AttributesInterface
         return ["Parâmetros" => $params];
     }
 
+    /**
+     * Valida os parâmetros obrigatórios e retorna erro caso algum parâmetro não seja válido.
+     * @param array $params - Parâmetros obrigatórios para o endpoint.
+     * @return bool - True caso todos os parâmetros sejam válidos, false caso contrário.
+     */
     private function validateRequiredParams(array $params): bool
     {
         $this->errors = [];
@@ -66,16 +84,31 @@ class RequiredParams implements AttributesInterface
         return false;
     }
 
+    /**
+     * Retorna os erros encontrados na validação dos parâmetros obrigatórios.
+     * @return array - Erros encontrados na validação dos parâmetros obrigatórios.
+     */
     private function getErrors(): array
     {
         return $this->errors;
     }
 
+    /**
+     * Valida se o parâmetro existe no GET.
+     * @param string $field - Parâmetro a ser validado.
+     * @return bool - Retorna true se o parâmetro existir, false caso contrário.
+     */
     private function existParam(string $field): bool
     {
         return isset($this->Get->$field);
     }
 
+    /**
+     * Valida o tipo do parâmetro.
+     * @param string $field - Parâmetro a ser validado.
+     * @param Field $filter - Tipo do parâmetro a ser validado.
+     * @return bool - Retorna true se o tipo do parâmetro for válido, false caso contrário.
+     */
     private function validateType(string $field, Field $filter): bool
     {
         return $filter->validate($this->Get->$field);

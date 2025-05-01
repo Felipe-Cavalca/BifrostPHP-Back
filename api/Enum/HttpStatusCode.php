@@ -2,6 +2,9 @@
 
 namespace Bifrost\Enum;
 
+/**
+ * Enum para representar os códigos de status HTTP.
+ */
 enum HttpStatusCode: int
 {
     case OK = 200;
@@ -22,6 +25,9 @@ enum HttpStatusCode: int
     case BAD_GATEWAY = 502;
     case SERVICE_UNAVAILABLE = 503;
 
+    /**
+     * Retorna a mensagem associada ao código de status HTTP.
+     */
     public function message(): string
     {
         return match ($this) {
@@ -45,6 +51,9 @@ enum HttpStatusCode: int
         };
     }
 
+    /**
+     * Verifica se o código de status indica sucesso.
+     */
     public function isSuccess(): bool
     {
         return match ($this) {
@@ -53,6 +62,9 @@ enum HttpStatusCode: int
         };
     }
 
+    /**
+     * Verifica se o código de status indica redirecionamento.
+     */
     public function isRedirection(): bool
     {
         return match ($this) {
@@ -61,6 +73,9 @@ enum HttpStatusCode: int
         };
     }
 
+    /**
+     * Verifica se o código de status indica erro do cliente.
+     */
     public function isClientError(): bool
     {
         return match ($this) {
@@ -69,6 +84,9 @@ enum HttpStatusCode: int
         };
     }
 
+    /**
+     * Verifica se o código de status indica erro do servidor.
+     */
     public function isServerError(): bool
     {
         return match ($this) {

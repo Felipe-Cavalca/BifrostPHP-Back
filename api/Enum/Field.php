@@ -2,6 +2,9 @@
 
 namespace Bifrost\Enum;
 
+/**
+ * Enum para representar os tipos de dados suportados.
+ */
 enum Field: string
 {
     case INTEGER = 'Número inteiro';
@@ -43,6 +46,11 @@ enum Field: string
         };
     }
 
+    /**
+     * Valida CPF.
+     * @param string $val CPF a ser validado.
+     * @return bool Retorna true se o CPF for válido, caso contrário, false.
+     */
     private static function validateCPF($val): bool
     {
         $val = preg_replace('/\D/', '', $val);
@@ -72,6 +80,11 @@ enum Field: string
         return true;
     }
 
+    /**
+     * Valida CNPJ.
+     * @param string $val CNPJ a ser validado.
+     * @return bool Retorna true se o CNPJ for válido, caso contrário, false.
+     */
     private static function validateCNPJ($val): bool
     {
         $val = preg_replace('/\D/', '', $val);
