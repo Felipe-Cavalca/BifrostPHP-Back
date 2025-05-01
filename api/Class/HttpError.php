@@ -5,6 +5,14 @@ namespace Bifrost\Class;
 use Bifrost\Enum\HttpStatusCode;
 use Bifrost\Class\HttpResponse;
 
+/**
+ * Classe para tratar erros HTTP.
+ * @package Bifrost\Class
+ * @param HttpStatusCode $statusCode - Código de status HTTP.
+ * @param string $details - Detalhes do erro.
+ * @param array|string $data - Dados adicionais do erro.
+ * @param array $additionalInfo - Informações adicionais do erro.
+ */
 class HttpError extends \Error
 {
     private HttpStatusCode $statusCode;
@@ -12,6 +20,13 @@ class HttpError extends \Error
     private array|string $data;
     private array $additionalInfo;
 
+    /**
+     * Construtor da classe HttpError.
+     * @param HttpStatusCode $statusCode - Código de status HTTP.
+     * @param string $details - Detalhes do erro.
+     * @param array|string $data - Dados adicionais do erro.
+     * @param array $additionalInfo - Informações adicionais do erro.
+     */
     public function __construct(
         HttpStatusCode $statusCode = HttpStatusCode::INTERNAL_SERVER_ERROR,
         string $details = "",
@@ -25,6 +40,10 @@ class HttpError extends \Error
         parent::__construct($details);
     }
 
+    /**
+     * Retorna o json do erro.
+     * @return string - Json do erro.
+     */
     public function __toString(): string
     {
         $additionalInfo = array_merge($this->additionalInfo, [
@@ -38,6 +57,10 @@ class HttpError extends \Error
         ));
     }
 
+    /**
+     * Retorna a resposta de não encontrado para o cliente
+     * @return HttpError - Resposta de não encontrado para o cliente.
+     */
     public static function notFound(string $details, array|string $data = []): HttpError
     {
         return new self(
@@ -47,6 +70,10 @@ class HttpError extends \Error
         );
     }
 
+    /**
+     * Retorna a resposta de método não permitido para o cliente
+     * @return HttpError - Resposta de método não permitido para o cliente.
+     */
     public static function methodNotAllowed(string $details, array|string $data = []): HttpError
     {
         return new self(
@@ -56,6 +83,10 @@ class HttpError extends \Error
         );
     }
 
+    /**
+     * Retorna a resposta de erro de requisição para o cliente
+     * @return HttpError - Resposta de erro de requisição para o cliente.
+     */
     public static function badRequest(string $details, array|string $data = []): HttpError
     {
         return new self(
@@ -65,6 +96,10 @@ class HttpError extends \Error
         );
     }
 
+    /**
+     * Retorna a resposta de erro interno do servidor para o cliente
+     * @return HttpError - Resposta de erro interno do servidor para o cliente.
+     */
     public static function internalServerError(string $details, array|string $data = [], array $additionalInfo = []): HttpError
     {
         return new self(
@@ -75,6 +110,10 @@ class HttpError extends \Error
         );
     }
 
+    /**
+     * Retorna a resposta de erro de autenticação para o cliente
+     * @return HttpError - Resposta de erro de autenticação para o cliente.
+     */
     public static function unauthorized(string $details, array|string $data = []): HttpError
     {
         return new self(
@@ -84,6 +123,10 @@ class HttpError extends \Error
         );
     }
 
+    /**
+     * Retorna a resposta de erro de permissão para o cliente
+     * @return HttpError - Resposta de erro de permissão para o cliente.
+     */
     public static function forbidden(string $details, array|string $data = []): HttpError
     {
         return new self(
