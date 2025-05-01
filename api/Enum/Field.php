@@ -23,6 +23,7 @@ enum Field: string
     case BASE64 = 'Base64';
     case FILE_PATH = 'Caminho de arquivo';
     case JSON = 'JSON';
+    case UUID = 'UUID';
 
     public function validate($val): bool
     {
@@ -42,6 +43,7 @@ enum Field: string
             self::BASE64 => is_string($val) && base64_decode($val, true) !== false,
             self::FILE_PATH => is_string($val),
             self::JSON => json_decode($val) !== null,
+            self::UUID => self::validateUUID($val),
             default => false,
         };
     }
@@ -114,5 +116,13 @@ enum Field: string
         }
 
         return true;
+    }
+
+    private static function validateUUID($val = null): bool
+    {
+        if (empty($val)) {
+            return false;
+        }
+        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $val) === 1;
     }
 }

@@ -10,7 +10,8 @@ namespace Bifrost\Interface;
  * @package Bifrost\Rules
  * @author Felipe dos S. Cavalca
  */
-interface ControllerInterface
-{
-    public function __construct();
+interface ControllerInterface {
+
+    public function index(); // Método padrão para o controller
+
 }
