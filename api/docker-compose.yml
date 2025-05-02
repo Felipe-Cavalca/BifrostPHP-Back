@@ -71,6 +71,8 @@ services:
 
   redis:
     image: redis:alpine3.20
+    ports:
+      - "6379:6379"
     networks:
       - bifrost-back-network
 
