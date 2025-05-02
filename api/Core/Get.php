@@ -21,7 +21,10 @@ class Get
 
     public function __toString()
     {
-        return json_encode(self::$data);
+        return json_encode(array_merge(self::$data, [
+            "_controller" => self::$controller,
+            "_action" => self::$action
+        ]), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     public function __get($name)
