@@ -1,0 +1,76 @@
+[
+    {
+        "name": "request GET",
+        "description": "Valida se retorna erro ao enviar um get",
+        "endpoint": "/index/options_recurso",
+        "method": "GET",
+        "tests": {
+            "status_code": 405,
+            "body_contains_value": {
+                "statusCode": 405,
+                "isSuccess": false,
+                "message": "Method not allowed",
+                "help": "for more information send this request with OPTIONS method"
+            }
+        }
+    },
+    {
+        "name": "request POST",
+        "description": "Valida se retorna erro ao enviar um POST",
+        "endpoint": "/index/options_recurso",
+        "method": "POST",
+        "tests": {
+            "status_code": 405,
+            "body_contains_value": {
+                "statusCode": 405,
+                "isSuccess": false,
+                "message": "Method not allowed",
+                "help": "for more information send this request with OPTIONS method"
+            }
+        }
+    },
+    {
+        "name": "request PUT",
+        "description": "Valida se retorna erro ao enviar um PUT",
+        "endpoint": "/index/options_recurso",
+        "method": "PUT",
+        "tests": {
+            "status_code": 405,
+            "body_contains_value": {
+                "statusCode": 405,
+                "isSuccess": false,
+                "message": "Method not allowed",
+                "help": "for more information send this request with OPTIONS method"
+            }
+        }
+    },
+    {
+        "name": "request DELETE",
+        "description": "Valida se retorna erro ao enviar um DELETE",
+        "endpoint": "/index/options_recurso",
+        "method": "DELETE",
+        "tests": {
+            "status_code": 405,
+            "body_contains_value": {
+                "statusCode": 405,
+                "isSuccess": false,
+                "message": "Method not allowed",
+                "help": "for more information send this request with OPTIONS method"
+            }
+        }
+    },
+    {
+        "name": "request OPTIONS",
+        "description": "Valida se retorna sucesso ao enviar um OPTIONS",
+        "endpoint": "/index/options_recurso",
+        "method": "OPTIONS",
+        "tests": {
+            "status_code": 200,
+            "body_contains_value": {
+                "statusCode": 200,
+                "isSuccess": true,
+                "message": "informações do recurso"
+            }
+        }
+    }
+]
