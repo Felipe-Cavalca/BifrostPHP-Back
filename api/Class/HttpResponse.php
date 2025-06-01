@@ -21,6 +21,7 @@ class HttpResponse
 
     /**
      * Construtor da classe HttpResponse.
+     * @deprecated Use o método __toString() para retornar a resposta.
      * @param HttpStatusCode $statusCode - Código de status HTTP.
      * @param string $message - Mensagem da resposta.
      * @param array|string $data - Dados da resposta.
@@ -55,6 +56,7 @@ class HttpResponse
 
     /**
      * Constrói a resposta HTTP.
+     * @deprecated agora é usado o método __toString() para retornar a resposta.
      * @param HttpStatusCode $statusCode - Código de status HTTP.
      * @param string $message - Mensagem da resposta.
      * @param array|string $data - Dados da resposta.
