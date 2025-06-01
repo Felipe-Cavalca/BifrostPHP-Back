@@ -37,7 +37,7 @@ class Method implements AttributesInterface
         // Caso o método seja OPTIONS e o endpoint não receba o OPTIONS retorna os dados do endpoint.
         if ($this->isOptions() && !in_array("OPTIONS", self::$methods)) {
             return HttpResponse::returnAttributes(
-                name: "Informações do endpoint",
+                name: "Information about the endpoint",
                 attributes: Request::getOptionsAttributes($this->Get->controller, $this->Get->action)
             );
         }

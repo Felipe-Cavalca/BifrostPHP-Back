@@ -36,7 +36,7 @@ class RequiredFields implements AttributesInterface
     public function beforeRun(): mixed
     {
         if (!$this->validateRequiredFields(self::$fields)) {
-            return HttpError::badRequest("Campos inválidos", $this->getErrors());
+            return HttpError::badRequest("Invalid fields", $this->getErrors());
         }
         return null;
     }
@@ -70,11 +70,11 @@ class RequiredFields implements AttributesInterface
             }
 
             if (!static::existField($field)) {
-                $this->errors[$field] = "Campo não encontrado";
+                $this->errors[$field] = "Field not found";
             }
 
             if (!static::validateType($field, $filter) && empty($this->errors[$field])) {
-                $this->errors[$field] = "Tipo de campo inválido";
+                $this->errors[$field] = "Invalid field type";
             }
         }
 

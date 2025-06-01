@@ -36,7 +36,7 @@ class RequiredParams implements AttributesInterface
     public function beforeRun(): mixed
     {
         if (!$this->validateRequiredParams(self::$params)) {
-            return HttpError::badRequest("Parâmetros inválidos", $this->getErrors());
+            return HttpError::badRequest("Invalid parameters", $this->getErrors());
         }
         return null;
     }
@@ -51,7 +51,7 @@ class RequiredParams implements AttributesInterface
         foreach (self::$params as $field => $filter) {
             $params[$field] = $filter->value ?? null;
         }
-        return ["Parâmetros" => $params];
+        return ["Params" => $params];
     }
 
     /**
@@ -70,11 +70,11 @@ class RequiredParams implements AttributesInterface
             }
 
             if (!static::existParam($field)) {
-                $this->errors[$field] = "Campo não encontrado";
+                $this->errors[$field] = "Field not found";
             }
 
             if (!static::validateType($field, $filter) && empty($this->errors[$field])) {
-                $this->errors[$field] = "Tipo de campo inválido";
+                $this->errors[$field] = "Invalid parameter type";
             }
         }
 
