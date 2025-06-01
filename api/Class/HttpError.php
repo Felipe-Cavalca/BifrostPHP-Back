@@ -7,6 +7,7 @@ use Bifrost\Class\HttpResponse;
 
 /**
  * Classe para tratar erros HTTP.
+ * @deprecated Usar HttpResponse para tratar erros HTTP.
  * @package Bifrost\Class
  * @param HttpStatusCode $statusCode - Código de status HTTP.
  * @param string $details - Detalhes do erro.
