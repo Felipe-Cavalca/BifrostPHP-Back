@@ -33,7 +33,7 @@ class OptionalFields implements AttributesInterface
     public function beforeRun(): mixed
     {
         if (!$this->validateOptionalFields(self::$fields)) {
-            return HttpError::badRequest("Campos inválidos", $this->getErrors());
+            return HttpError::badRequest("Invalid fields", $this->getErrors());
         }
         return null;
     }
@@ -63,7 +63,7 @@ class OptionalFields implements AttributesInterface
             }
 
             if (!static::validateType($field, $filter) && empty($this->errors[$field])) {
-                $this->errors[$field] = "Tipo de campo inválido";
+                $this->errors[$field] = "Invalid field type";
             }
         }
 
