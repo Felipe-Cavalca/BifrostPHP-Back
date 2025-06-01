@@ -6,11 +6,6 @@ use Bifrost\Enum\HttpStatusCode;
 
 /**
  * Classe para tratar respostas HTTP.
- * @package Bifrost\Class
- * @param HttpStatusCode $statusCode - Código de status HTTP.
- * @param string $message - Mensagem da resposta.
- * @param array|string $data - Dados da resposta.
- * @param array $additionalInfo - Informações adicionais da resposta.
  */
 class HttpResponse
 {
