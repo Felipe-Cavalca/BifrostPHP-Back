@@ -9,31 +9,12 @@ use Bifrost\Enum\HttpStatusCode;
  */
 class HttpResponse
 {
-    private HttpStatusCode $statusCode;
-    private string $message;
-    private array|string $data;
-    private array $additionalInfo;
-
-    /**
-     * Construtor da classe HttpResponse.
-     * @deprecated Use o método __toString() para retornar a resposta.
-     * @param HttpStatusCode $statusCode - Código de status HTTP.
-     * @param string $message - Mensagem da resposta.
-     * @param array|string $data - Dados da resposta.
-     * @param array $additionalInfo - Informações adicionais da resposta.
-     * @return void
-     */
-    public function __construct(
-        HttpStatusCode $statusCode = HttpStatusCode::INTERNAL_SERVER_ERROR,
-        string $message = "",
-        array|string $data = [],
-        array $additionalInfo = []
-    ) {
-        $this->statusCode = $statusCode;
-        $this->message = $message;
-        $this->data = $data;
-        $this->additionalInfo = $additionalInfo;
-    }
+    private HttpStatusCode $statusCode = HttpStatusCode::INTERNAL_SERVER_ERROR;
+    private string $message = null;
+    private array|string $data = null;
+    private array $errors = null;
+    private array $meta = null;
+    private array $additionalInfo = [];
 
     /**
      * Retorna o json da resposta.
@@ -41,12 +22,17 @@ class HttpResponse
      */
     public function __toString(): string
     {
-        return json_encode(self::buildResponse(
-            $this->statusCode,
-            $this->message,
-            $this->data,
-            $this->additionalInfo
-        ));
+        return json_encode(
+            array_merge([
+                "statusCode" => $this->statusCode->value,
+                "isSuccess" => $this->statusCode->isSuccess(),
+                "message" => $this->message,
+                "data" => $this->data,
+                "errors" => $this->errors,
+                "meta" => $this->meta
+            ], $this->additionalInfo),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
     }
 
     /**
