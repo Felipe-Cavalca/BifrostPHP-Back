@@ -1,75 +1,84 @@
 [
     {
-        "name": "request GET",
-        "description": "Valida se retorna erro ao enviar um get",
+        "name": "options_recurso GET",
+        "description": "GET não é permitido em /index/options_recurso",
         "endpoint": "/index/options_recurso",
         "method": "GET",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "status": 405,
+                "message": "The method GET is not allowed for this endpoint.",
+                "errors": {"method": "GET"}
             }
         }
     },
     {
-        "name": "request POST",
-        "description": "Valida se retorna erro ao enviar um POST",
+        "name": "options_recurso POST",
+        "description": "POST não é permitido em /index/options_recurso",
         "endpoint": "/index/options_recurso",
         "method": "POST",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "status": 405,
+                "message": "The method POST is not allowed for this endpoint.",
+                "errors": {"method": "POST"}
             }
         }
     },
     {
-        "name": "request PUT",
-        "description": "Valida se retorna erro ao enviar um PUT",
+        "name": "options_recurso PUT",
+        "description": "PUT não é permitido em /index/options_recurso",
         "endpoint": "/index/options_recurso",
         "method": "PUT",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "status": 405,
+                "message": "The method PUT is not allowed for this endpoint.",
+                "errors": {"method": "PUT"}
             }
         }
     },
     {
-        "name": "request DELETE",
-        "description": "Valida se retorna erro ao enviar um DELETE",
+        "name": "options_recurso DELETE",
+        "description": "DELETE não é permitido em /index/options_recurso",
         "endpoint": "/index/options_recurso",
         "method": "DELETE",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "status": 405,
+                "message": "The method DELETE is not allowed for this endpoint.",
+                "errors": {"method": "DELETE"}
             }
         }
     },
     {
-        "name": "request OPTIONS",
-        "description": "Valida se retorna sucesso ao enviar um OPTIONS",
+        "name": "options_recurso OPTIONS",
+        "description": "OPTIONS deve retornar informações do recurso",
         "endpoint": "/index/options_recurso",
         "method": "OPTIONS",
         "tests": {
             "status_code": 200,
-            "body_contains_value": {
-                "statusCode": 200,
-                "isSuccess": true,
-                "message": "informações do recurso"
+            "body": {
+                "status": 200,
+                "message": "Recurso",
+                "data": {
+                    "list_options": {
+                        "Methods": ["OPTIONS"],
+                        "description": "Lista informações do recurso",
+                        "Cache": {"seconds": 60}
+                    },
+                    "get_recurso": {
+                        "Methods": ["GET"],
+                        "description": "lista um recurso",
+                        "Cache": {"seconds": 60},
+                        "Params": {"id": "UUID"}
+                    }
+                },
+                "errors": null
             }
         }
     }

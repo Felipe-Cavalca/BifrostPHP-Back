@@ -1,8 +1,8 @@
 [
     {
-        "name": "get_recurso GET sem id",
-        "description": "GET sem id deve retornar erro",
-        "endpoint": "/index/get_recurso",
+        "name": "index GET sem id",
+        "description": "GET /index sem parametro id deve retornar erro",
+        "endpoint": "/index",
         "method": "GET",
         "tests": {
             "status_code": 400,
@@ -14,9 +14,9 @@
         }
     },
     {
-        "name": "get_recurso GET com id",
-        "description": "Deve retornar recurso com id informado",
-        "endpoint": "/index/get_recurso",
+        "name": "index GET com id",
+        "description": "GET /index com id deve retornar recurso",
+        "endpoint": "/index",
         "method": "GET",
         "query": {"id": "12345678-1234-1234-1234-123456789012"},
         "tests": {
@@ -30,59 +30,64 @@
         }
     },
     {
-        "name": "get_recurso POST",
-        "description": "POST não é permitido",
-        "endpoint": "/index/get_recurso",
+        "name": "index POST",
+        "description": "POST /index deve retornar Method not allowed",
+        "endpoint": "/index",
         "method": "POST",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
                 "status": 405,
-                "message": "The method POST is not allowed for this endpoint.",
+                "message": "Method not allowed",
                 "errors": {"method": "POST"}
             }
         }
     },
     {
-        "name": "get_recurso PUT",
-        "description": "PUT não é permitido",
-        "endpoint": "/index/get_recurso",
+        "name": "index PUT",
+        "description": "PUT /index deve retornar Method not allowed",
+        "endpoint": "/index",
         "method": "PUT",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
                 "status": 405,
-                "message": "The method PUT is not allowed for this endpoint.",
+                "message": "Method not allowed",
                 "errors": {"method": "PUT"}
             }
         }
     },
     {
-        "name": "get_recurso DELETE",
-        "description": "DELETE não é permitido",
-        "endpoint": "/index/get_recurso",
+        "name": "index DELETE",
+        "description": "DELETE /index deve retornar Method not allowed",
+        "endpoint": "/index",
         "method": "DELETE",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
                 "status": 405,
-                "message": "The method DELETE is not allowed for this endpoint.",
+                "message": "Method not allowed",
                 "errors": {"method": "DELETE"}
             }
         }
     },
     {
-        "name": "get_recurso OPTIONS",
-        "description": "OPTIONS retorna detalhes do endpoint",
-        "endpoint": "/index/get_recurso",
+        "name": "index OPTIONS",
+        "description": "OPTIONS /index retorna informações do recurso",
+        "endpoint": "/index",
         "method": "OPTIONS",
         "tests": {
             "status_code": 200,
             "body": {
                 "status": 200,
-                "message": "Endpoint information",
+                "message": "Recurso",
                 "data": {
-                    "attributes": {
+                    "list_options": {
+                        "Methods": ["OPTIONS"],
+                        "description": "Lista informações do recurso",
+                        "Cache": {"seconds": 60}
+                    },
+                    "get_recurso": {
                         "Methods": ["GET"],
                         "description": "lista um recurso",
                         "Cache": {"seconds": 60},

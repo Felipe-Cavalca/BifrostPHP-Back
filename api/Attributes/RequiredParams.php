@@ -93,7 +93,7 @@ class RequiredParams implements AttributesInterface
      */
     private function getErrors(): array
     {
-        return $this->errors;
+        return ["params" => $this->errors];
     }
 
     /**

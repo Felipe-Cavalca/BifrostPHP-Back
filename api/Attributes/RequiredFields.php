@@ -93,7 +93,7 @@ class RequiredFields implements AttributesInterface
      */
     private function getErrors(): array
     {
-        return $this->errors;
+        return ["fields" => $this->errors];
     }
 
     /**

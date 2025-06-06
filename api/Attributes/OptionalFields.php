@@ -83,7 +83,7 @@ class OptionalFields implements AttributesInterface
      */
     private function getErrors(): array
     {
-        return $this->errors;
+        return ["fields" => $this->errors];
     }
 
     /**
