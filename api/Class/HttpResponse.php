@@ -11,7 +11,7 @@ class HttpResponse
 {
 
     public function __construct(
-        private HttpStatusCode $statusCode = HttpStatusCode::INTERNAL_SERVER_ERROR,
+        private HttpStatusCode $status = HttpStatusCode::INTERNAL_SERVER_ERROR,
         private ?string $message = null,
         private null|array $data = null,
         private ?array $errors = null,
@@ -20,10 +20,11 @@ class HttpResponse
 
     public function __toString(): string
     {
+        http_response_code($this->status->value);
         return json_encode(
             array_merge([
-                "statusCode" => $this->statusCode->value,
-                "message" => $this->message ?? $this->statusCode->message(),
+                "status" => $this->status->value,
+                "message" => $this->message ?? $this->status->message(),
                 "data" => $this->data,
                 "errors" => $this->errors,
             ], $this->additionalInfo),
@@ -54,7 +55,7 @@ class HttpResponse
     public static function success(?string $message = null, ?array $data = null): self
     {
         return new self(
-            statusCode: HttpStatusCode::OK,
+            status: HttpStatusCode::OK,
             message: $message,
             data: $data
         );
@@ -69,7 +70,7 @@ class HttpResponse
     public static function created(string $objName, array $data): self
     {
         return new self(
-            statusCode: HttpStatusCode::CREATED,
+            status: HttpStatusCode::CREATED,
             message: $objName . " created successfully",
             data: $data
         );
@@ -84,7 +85,7 @@ class HttpResponse
     {
         header("Access-Control-Allow-Methods: " . implode(", ", $methods));
         return new self(
-            statusCode: HttpStatusCode::OK,
+            status: HttpStatusCode::OK,
             message: "Allow Methods",
             additionalInfo: ["methods" => $methods]
         );
@@ -99,7 +100,7 @@ class HttpResponse
     public static function notFound(array $errors, ?string $message = null): self
     {
         return new self(
-            statusCode: HttpStatusCode::NOT_FOUND,
+            status: HttpStatusCode::NOT_FOUND,
             message: $message,
             errors: $errors
         );
@@ -113,7 +114,7 @@ class HttpResponse
     public static function methodNotAllowed(string $message): self
     {
         return new self(
-            statusCode: HttpStatusCode::METHOD_NOT_ALLOWED,
+            status: HttpStatusCode::METHOD_NOT_ALLOWED,
             message: $message,
             errors: [
                 "method" => $_SERVER["REQUEST_METHOD"]
@@ -130,7 +131,7 @@ class HttpResponse
     public static function badRequest(array $errors, ?string $message = null): self
     {
         return new self(
-            statusCode: HttpStatusCode::BAD_REQUEST,
+            status: HttpStatusCode::BAD_REQUEST,
             message: $message,
             errors: $errors
         );
@@ -145,7 +146,7 @@ class HttpResponse
     public static function internalServerError(array $errors, ?string $message = null): self
     {
         return new self(
-            statusCode: HttpStatusCode::INTERNAL_SERVER_ERROR,
+            status: HttpStatusCode::INTERNAL_SERVER_ERROR,
             message: $message,
             errors: $errors
         );
@@ -160,7 +161,7 @@ class HttpResponse
     public static function unauthorized(string $message, array $errors = []): self
     {
         return new self(
-            statusCode: HttpStatusCode::UNAUTHORIZED,
+            status: HttpStatusCode::UNAUTHORIZED,
             message: $message,
             errors: $errors
         );
@@ -175,7 +176,7 @@ class HttpResponse
     public static function forbidden(string $message, array $data = []): self
     {
         return new self(
-            statusCode: HttpStatusCode::FORBIDDEN,
+            status: HttpStatusCode::FORBIDDEN,
             message: $message,
             errors: $data
         );

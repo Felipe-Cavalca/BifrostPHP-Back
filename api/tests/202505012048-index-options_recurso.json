@@ -7,7 +7,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method GET is not allowed for this endpoint.",
                 "errors": {"method": "GET"}
             }
@@ -21,7 +21,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method POST is not allowed for this endpoint.",
                 "errors": {"method": "POST"}
             }
@@ -35,7 +35,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method PUT is not allowed for this endpoint.",
                 "errors": {"method": "PUT"}
             }
@@ -49,7 +49,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method DELETE is not allowed for this endpoint.",
                 "errors": {"method": "DELETE"}
             }
@@ -63,7 +63,7 @@
         "tests": {
             "status_code": 200,
             "body": {
-                "statusCode": 200,
+                "status": 200,
                 "message": "Recurso",
                 "data": {
                     "list_options": {

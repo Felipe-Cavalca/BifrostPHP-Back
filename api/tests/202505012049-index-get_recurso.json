@@ -7,9 +7,9 @@
         "tests": {
             "status_code": 400,
             "body_contains_value": {
-                "statusCode": 400,
+                "status": 400,
                 "message": "Invalid parameters",
-                "errors": {"id": "Field not found"}
+                "errors": {"params": {"id": "Field not found"}}
             }
         }
     },
@@ -22,7 +22,7 @@
         "tests": {
             "status_code": 200,
             "body": {
-                "statusCode": 200,
+                "status": 200,
                 "message": "Recurso",
                 "data": {"id": "12345678-1234-1234-1234-123456789012"},
                 "errors": null
@@ -37,7 +37,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method POST is not allowed for this endpoint.",
                 "errors": {"method": "POST"}
             }
@@ -51,7 +51,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method PUT is not allowed for this endpoint.",
                 "errors": {"method": "PUT"}
             }
@@ -65,7 +65,7 @@
         "tests": {
             "status_code": 405,
             "body_contains_value": {
-                "statusCode": 405,
+                "status": 405,
                 "message": "The method DELETE is not allowed for this endpoint.",
                 "errors": {"method": "DELETE"}
             }
@@ -79,7 +79,7 @@
         "tests": {
             "status_code": 200,
             "body": {
-                "statusCode": 200,
+                "status": 200,
                 "message": "Endpoint information",
                 "data": {
                     "attributes": {
