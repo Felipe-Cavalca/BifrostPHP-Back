@@ -7,7 +7,17 @@ namespace Bifrost\Enum;
  */
 enum Path: string
 {
-    case CLASSE = "Bifrost\\Class\\";
-    case CONTROLLERS = "Bifrost\\Controller\\";
-    case MODEL = "Bifrost\\Model\\";
+    case FOLDER = ".\\";
+    case NAMESPACE = "Bifrost\\";
+    case CLASSE = "Class\\";
+    case CONTROLLERS = "Controller\\";
+    case MODEL = "Model\\";
+
+    /**
+     * Troca o separador de namespace para o separador de diretório.
+     */
+    public function toDirectory(): string
+    {
+        return str_replace("\\", DIRECTORY_SEPARATOR, $this->value);
+    }
 }

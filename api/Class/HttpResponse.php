@@ -16,7 +16,7 @@ class HttpResponse
         private null|array $data = null,
         private ?array $errors = null,
         private array $additionalInfo = []
-    ): void {}
+    ) {}
 
     public function __toString(): string
     {
@@ -114,7 +114,10 @@ class HttpResponse
     {
         return new self(
             statusCode: HttpStatusCode::METHOD_NOT_ALLOWED,
-            message: $message
+            message: $message,
+            errors: [
+                "method" => $_SERVER["REQUEST_METHOD"]
+            ]
         );
     }
 

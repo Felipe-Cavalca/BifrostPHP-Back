@@ -9,10 +9,11 @@
 
 namespace Bifrost\Core;
 
+use Bifrost\Class\HttpResponse;
+use Bifrost\Core\AppError;
 use Bifrost\Core\Get;
 use Bifrost\Core\Settings;
 use Bifrost\Enum\Path;
-use Bifrost\Class\HttpError;
 use Bifrost\Interface\ControllerInterface;
 use ReflectionMethod;
 
@@ -40,64 +41,92 @@ final class Request
         return $this->handleResponse($this->run($this->Get->controller, $this->Get->action));
     }
 
-    public static function run(string $controllerName, string $actionName): mixed
+    /**
+     * Executa uma ação de um Controller.
+     * @param string|ControllerInterface $controller Nome do Controller.
+     * @param string $action Nome da ação do Controller.
+     * @return mixed Retorna o resultado da ação do Controller.
+     */
+    public static function run(string|ControllerInterface $controller, string $action): mixed
     {
         try {
-            if (empty($controllerName) || !self::validateControllerName($controllerName)) {
-                return HttpError::notFound("URL not found", ["path" => $controllerName]);
-            }
-            $objController = self::loadController($controllerName);
 
-            if (!self::validateActionName($objController, $actionName)) {
-                return HttpError::notFound("Action not found", ["path" => $controllerName . "/" . $actionName]);
+            if ($controller instanceof ControllerInterface) {
+                $objController = $controller;
+            } else {
+                if (empty($controller) || !self::validateControllerName($controller)) {
+                    throw new AppError(HttpResponse::notFound(["controller" => $controller], "Controller not found"));
+                }
+
+                $objController = self::loadController($controller);
             }
 
-            $reflectionMethod = new ReflectionMethod($objController, $actionName);
+            if (!self::validateActionName($objController, $action)) {
+                throw new AppError(HttpResponse::notFound(["action" => $action], "Action not found"));
+            }
+
+            $reflectionMethod = new ReflectionMethod($objController, $action);
             $attributes = self::getAttributes($reflectionMethod);
             $return = self::runBeforeAttributes($attributes);
 
+            // Se o método beforeRun retornar algo, não executa a ação do controller.
             if ($return !== null) {
                 return $return;
             }
 
-            $return = self::runAction($objController, $actionName);
+            $return = self::runAction($objController, $action);
             self::runAfterAttributes($attributes, $return);
             return $return;
-        } catch (HttpError $erro) {
-            return $erro;
-        } catch (\Exception $erro) {
-            return HttpError::internalServerError($erro->getMessage());
-        } catch (\Error $erro) {
-            return HttpError::internalServerError($erro->getMessage());
-        } catch (\TypeError $erro) {
-            return HttpError::internalServerError($erro->getMessage());
+        } catch (\Throwable $erro) {
+            if ($erro instanceof AppError) {
+                return $erro;
+            }
+            return HttpResponse::internalServerError([], $erro->getMessage());
         }
     }
 
+    /**
+     * Valida o nome do Controller.
+     * @param string $controller Nome do Controller.
+     * @return bool Retorna true se o Controller for válido, caso contrário, false.
+     */
     private static function validateControllerName(string $controller): bool
     {
-        $nameController = './Controller/' . $controller . ".php";
-        $controller = Path::CONTROLLERS->value . $controller;
+        $nameController = Path::FOLDER->toDirectory() . Path::CONTROLLERS->toDirectory() . $controller . ".php";
+        $controller = Path::NAMESPACE->value . Path::CONTROLLERS->value . $controller;
         if (!is_readable($nameController) || !class_exists($controller)) {
             return false;
         }
         return true;
     }
 
+    /**
+     * Carrega o Controller.
+     * @param string $controllerName Nome do Controller.
+     * @return ControllerInterface Retorna uma instância do Controller.
+     */
     private static function loadController(string $controllerName): ControllerInterface
     {
-        $controller = Path::CONTROLLERS->value . $controllerName;
+        $controller = Path::NAMESPACE->value . Path::CONTROLLERS->value . $controllerName;
         return new $controller();
     }
 
+    /**
+     * Valida o nome da ação do Controller.
+     * @param ControllerInterface $controller Instância do Controller.
+     * @param string $action Nome da ação do Controller.
+     * @return bool Retorna true se a ação for válida, caso contrário, false.
+     */
     private static function validateActionName(ControllerInterface $controller, string $action): bool
     {
-        if (!method_exists($controller, $action)) {
-            return false;
-        }
-        return true;
+        return method_exists($controller, $action);
     }
 
+    /**
+     * Obtém os atributos de um método.
+     * @param ReflectionMethod $reflectionMethod Método a ser analisado.
+     * @return array Retorna um array com os atributos do método.
+     */
     private static function getAttributes(ReflectionMethod $reflectionMethod): array
     {
         $attributesReturn = [];
@@ -108,6 +137,12 @@ final class Request
         return $attributesReturn;
     }
 
+    /**
+     * Executa os métodos beforeRun dos atributos.
+     * @param array $attributes Atributos do método.
+     * @return mixed Retorna o resultado do método beforeRun, se houver.
+     * @see AttributesInterface
+     */
     private static function runBeforeAttributes(array $attributes): mixed
     {
         foreach ($attributes as $attribute) {
@@ -121,6 +156,13 @@ final class Request
         return null;
     }
 
+    /**
+     * Executa os métodos afterRun dos atributos.
+     * @param array|null $attributes Atributos do método.
+     * @param mixed $return Retorno da ação do Controller.
+     * @return void
+     * @see AttributesInterface
+     */
     private static function runAfterAttributes(array|null $attributes, mixed $return): void
     {
         foreach ($attributes as $attribute) {
@@ -130,6 +172,12 @@ final class Request
         }
     }
 
+    /**
+     * Executa a ação do Controller.
+     * @param ControllerInterface $controller Instância do Controller.
+     * @param string $action Nome da ação do Controller.
+     * @return mixed Retorna o resultado da ação do Controller.
+     */
     private static function runAction(ControllerInterface $controller, string $action): mixed
     {
         return call_user_func([$controller, $action]);
@@ -144,9 +192,18 @@ final class Request
         }
     }
 
-    public static function getOptionsAttributes($controller, $action): array
+    /**
+     * Obtém os atributos de opções de um Controller e ação.
+     * @param string|ControllerInterface $controller Nome do Controller ou instância do Controller.
+     * @param string $action Nome da ação do Controller.
+     * @return array Retorna um array com as opções dos atributos.
+     */
+    public static function getOptionsAttributes(string|ControllerInterface $controller, string $action): array
     {
-        $controller = self::loadController($controller);
+        if (! $controller instanceof ControllerInterface) {
+            $controller = self::loadController($controller);
+        }
+
         $reflectionMethod = new ReflectionMethod($controller, $action);
         $attributes = $reflectionMethod->getAttributes();
         $options = [];
