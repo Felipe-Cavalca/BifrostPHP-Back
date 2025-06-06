@@ -12,9 +12,10 @@ use Bifrost\Interface\AttributesInterface;
 
 /**
  * Cache constructor.
- * @param string $key
- * @param int $time
- * @param array $fieldsSession
+ *
+ * @param int $time Tempo em segundos que o cache ficará salvo.
+ * @param array $fieldsSession Campos da sessão que serão levados em conta ao gerar a chave.
+ * @param array $extra Array de valores extras utilizados para compor a chave.
  * @return void
  */
 #[Attribute]
@@ -26,17 +27,24 @@ class Cache implements AttributesInterface
     private int $time;
     private CoreCache $cache;
 
-    public function __construct(...$p)
+    public function __construct(int $time, array $fieldsSession = [], array $extra = [])
     {
         $post = new Post();
         $get = new Get();
-        $this->key = serialize([
-            "key" => $p[0],
-            "POST" => (string)$post,
-            "GET" => (string)$get,
-            "SESSION" => $this->getFieldsSession($p[2] ?? []),
-        ]);
-        $this->time = $p[1];
+
+        $dataKey = [
+            "METHOD" => $_SERVER['REQUEST_METHOD'] ?? 'GET',
+            "POST" => (string) $post,
+            "GET" => (string) $get,
+            "SESSION" => $this->getFieldsSession($fieldsSession),
+        ];
+
+        if (!empty($extra)) {
+            $dataKey["EXTRA"] = serialize($extra);
+        }
+
+        $this->key = serialize($dataKey);
+        $this->time = $time;
         $this->cache = new CoreCache();
     }
 

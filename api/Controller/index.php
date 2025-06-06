@@ -15,7 +15,7 @@ use Bifrost\Interface\ControllerInterface;
 class Index implements ControllerInterface
 {
 
-    #[Cache("index-data", 20)]
+    #[Cache(20)]
     public function index()
     {
         switch ($_SERVER["REQUEST_METHOD"]) {
@@ -30,7 +30,7 @@ class Index implements ControllerInterface
 
     #[Method("OPTIONS")]
     #[Details(["description" => "Lista informações do recurso"])]
-    #[Cache("options_recurso", 60)]
+    #[Cache(60)]
     public function options_recurso()
     {
         return HttpResponse::success(
@@ -46,7 +46,7 @@ class Index implements ControllerInterface
     #[Details([
         "description" => "lista um recurso",
     ])]
-    #[Cache("get_recurso", 60)]
+    #[Cache(60)]
     #[RequiredParams([
         "id" => Field::UUID
     ])]
