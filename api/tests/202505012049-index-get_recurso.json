@@ -1,110 +1,95 @@
 [
     {
-        "name": "request GET",
-        "description": "Valida se retorna erro ao enviar um get",
+        "name": "get_recurso GET sem id",
+        "description": "GET sem id deve retornar erro",
         "endpoint": "/index/get_recurso",
         "method": "GET",
         "tests": {
             "status_code": 400,
             "body_contains_value": {
                 "statusCode": 400,
-                "isSuccess": false,
-                "message": "Parâmetros inválidos",
-                "data": {
-                    "id": "Campo não encontrado"
-                },
-                "help": "for more information send this request with OPTIONS method"
+                "message": "Invalid parameters",
+                "errors": {"id": "Field not found"}
             }
         }
     },
     {
-        "name": "request GET with id",
-        "description": "Valida se retorna erro ao enviar um get com id",
+        "name": "get_recurso GET com id",
+        "description": "Deve retornar recurso com id informado",
         "endpoint": "/index/get_recurso",
         "method": "GET",
-        "query": {
-            "id": "12345678-1234-1234-1234-123456789012"
-        },
+        "query": {"id": "12345678-1234-1234-1234-123456789012"},
         "tests": {
             "status_code": 200,
-            "body_contains_value": {
+            "body": {
                 "statusCode": 200,
-                "isSuccess": true,
                 "message": "Recurso",
-                "data": {
-                    "id": "12345678-1234-1234-1234-123456789012"
-                }
+                "data": {"id": "12345678-1234-1234-1234-123456789012"},
+                "errors": null
             }
         }
     },
     {
-        "name": "request POST",
-        "description": "Valida se retorna erro ao enviar um POST",
+        "name": "get_recurso POST",
+        "description": "POST não é permitido",
         "endpoint": "/index/get_recurso",
         "method": "POST",
-        "status_code": 405,
         "tests": {
+            "status_code": 405,
             "body_contains_value": {
                 "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "message": "The method POST is not allowed for this endpoint.",
+                "errors": {"method": "POST"}
             }
         }
     },
     {
-        "name": "request PUT",
-        "description": "Valida se retorna erro ao enviar um PUT",
+        "name": "get_recurso PUT",
+        "description": "PUT não é permitido",
         "endpoint": "/index/get_recurso",
         "method": "PUT",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
                 "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "message": "The method PUT is not allowed for this endpoint.",
+                "errors": {"method": "PUT"}
             }
         }
     },
     {
-        "name": "request DELETE",
-        "description": "Valida se retorna erro ao enviar um DELETE",
+        "name": "get_recurso DELETE",
+        "description": "DELETE não é permitido",
         "endpoint": "/index/get_recurso",
         "method": "DELETE",
         "tests": {
             "status_code": 405,
             "body_contains_value": {
                 "statusCode": 405,
-                "isSuccess": false,
-                "message": "Method not allowed",
-                "help": "for more information send this request with OPTIONS method"
+                "message": "The method DELETE is not allowed for this endpoint.",
+                "errors": {"method": "DELETE"}
             }
         }
     },
     {
-        "name": "request OPTIONS",
-        "description": "Valida se retorna erro ao enviar um OPTIONS",
+        "name": "get_recurso OPTIONS",
+        "description": "OPTIONS retorna detalhes do endpoint",
         "endpoint": "/index/get_recurso",
         "method": "OPTIONS",
         "tests": {
             "status_code": 200,
             "body": {
                 "statusCode": 200,
-                "isSuccess": true,
-                "message": "Informações do endpoint",
+                "message": "Endpoint information",
                 "data": {
-                    "Methods": [
-                        "GET"
-                    ],
-                    "description": "lista um recurso",
-                    "Cache": {
-                        "seconds": 60
-                    },
-                    "Parâmetros": {
-                        "id": "UUID"
+                    "attributes": {
+                        "Methods": ["GET"],
+                        "description": "lista um recurso",
+                        "Cache": {"seconds": 60},
+                        "Params": {"id": "UUID"}
                     }
-                }
+                },
+                "errors": null
             }
         }
     }
