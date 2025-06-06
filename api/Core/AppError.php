@@ -3,13 +3,13 @@
 namespace Bifrost\Core;
 
 use Bifrost\Class\HttpResponse;
-use Throwable;
+use \Exception;
 
 /**
  * É responsável por disparar erros de aplicação.
  * @property HttpResponse $response
  */
-class AppError extends \Throwable
+class AppError extends Exception
 {
     public HttpResponse $response;
 
@@ -20,6 +20,7 @@ class AppError extends \Throwable
     public function __construct(HttpResponse $response)
     {
         $this->response = $response;
+        parent::__construct((string)$response);
     }
 
     /**
