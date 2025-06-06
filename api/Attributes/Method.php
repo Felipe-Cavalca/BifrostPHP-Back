@@ -3,8 +3,8 @@
 namespace Bifrost\Attributes;
 
 use Attribute;
-use Bifrost\Class\HttpError;
 use Bifrost\Class\HttpResponse;
+use Bifrost\Core\AppError;
 use Bifrost\Include\AtrributesDefaultMethods;
 use Bifrost\Interface\AttributesInterface;
 use Bifrost\Core\Request;
@@ -36,15 +36,17 @@ class Method implements AttributesInterface
     {
         // Caso o método seja OPTIONS e o endpoint não receba o OPTIONS retorna os dados do endpoint.
         if ($this->isOptions() && !in_array("OPTIONS", self::$methods)) {
-            return HttpResponse::returnAttributes(
-                name: "Information about the endpoint",
-                attributes: Request::getOptionsAttributes($this->Get->controller, $this->Get->action)
+            return HttpResponse::success(
+                message: "Endpoint information",
+                data: [
+                    "attributes" => Request::getOptionsAttributes($this->Get->controller, $this->Get->action)
+                ]
             );
         }
 
         // Valida se o método da requisição é permitido.
         if (!$this->validateMethods(self::$methods)) {
-            return HttpError::methodNotAllowed("Method not allowed");
+            throw new AppError(HttpResponse::methodNotAllowed("The method {$_SERVER["REQUEST_METHOD"]} is not allowed for this endpoint."));
         }
 
         return null;

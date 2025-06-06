@@ -3,7 +3,7 @@
 namespace Bifrost\Attributes;
 
 use Attribute;
-use Bifrost\Class\HttpError;
+use Bifrost\Class\HttpResponse;
 use Bifrost\Interface\AttributesInterface;
 use Bifrost\Include\AtrributesDefaultMethods;
 use Bifrost\Core\Get;
@@ -36,7 +36,10 @@ class RequiredParams implements AttributesInterface
     public function beforeRun(): mixed
     {
         if (!$this->validateRequiredParams(self::$params)) {
-            return HttpError::badRequest("Invalid parameters", $this->getErrors());
+            return HttpResponse::badRequest(
+                errors: $this->getErrors(),
+                message: "Invalid parameters"
+            );
         }
         return null;
     }
