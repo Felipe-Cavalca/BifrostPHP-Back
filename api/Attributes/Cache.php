@@ -27,7 +27,7 @@ class Cache implements AttributesInterface
     private int $time;
     private CoreCache $cache;
 
-    public function __construct(int $time, array $fieldsSession = [], array $extra = [])
+    public function __construct(...$parms)
     {
         $post = new Post();
         $get = new Get();
@@ -36,15 +36,15 @@ class Cache implements AttributesInterface
             "METHOD" => $_SERVER['REQUEST_METHOD'] ?? 'GET',
             "POST" => (string) $post,
             "GET" => (string) $get,
-            "SESSION" => $this->getFieldsSession($fieldsSession),
+            "SESSION" => $this->getFieldsSession($parms[1] ?? []),
         ];
 
-        if (!empty($extra)) {
-            $dataKey["EXTRA"] = serialize($extra);
+        if (!empty($parms[2]) && is_array($parms[2])) {
+            $dataKey["EXTRA"] = serialize($parms[2]);
         }
 
         $this->key = serialize($dataKey);
-        $this->time = $time;
+        $this->time = $parms[0];
         $this->cache = new CoreCache();
     }
 
