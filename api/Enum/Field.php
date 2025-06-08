@@ -7,21 +7,21 @@ namespace Bifrost\Enum;
  */
 enum Field: string
 {
-    case INTEGER = 'Número inteiro';
-    case INTEGER_IN_STRING = 'Número inteiro em string';
-    case STRING = 'Texto';
-    case FLOAT = 'Número decimal';
-    case BOOLEAN = 'Booleano';
+    case INTEGER = 'Integer';
+    case INTEGER_IN_STRING = 'Integer in string';
+    case STRING = 'String';
+    case FLOAT = 'Float';
+    case BOOLEAN = 'Boolean';
     case ARRAY = 'Array';
-    case OBJECT = 'Objeto';
-    case NULL = 'Nulo';
-    case DEFAULT = 'Tipo não identificado';
+    case OBJECT = 'Object';
+    case NULL = 'Null';
+    case DEFAULT = 'Unidentified type';
     case CPF = 'Cpf';
     case CNPJ = 'Cnpj';
     case EMAIL = 'Email';
     case URL = 'Url';
     case BASE64 = 'Base64';
-    case FILE_PATH = 'Caminho de arquivo';
+    case FILE_PATH = 'File path';
     case JSON = 'JSON';
     case UUID = 'UUID';
 
