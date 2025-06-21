@@ -212,7 +212,7 @@ class Database
         }
     }
 
-    public function insert(string $table, array $data, string $returning = ""): int|false
+    public function insert(string $table, array $data, string $returning = ""): int|false|string
     {
         $returning = $this->hasReturning ? $returning : "";
 
@@ -371,6 +371,14 @@ class Database
         return false;
     }
 
+    public function exists(string $table, array|string $where): bool
+    {
+        $whereSql = $where ? self::buildWhereQuery($where) : '';
+        $sql = "SELECT EXISTS(SELECT 1 FROM $table" . ($whereSql ? " WHERE $whereSql" : "") . ") AS exists";
+        $res = $this->executeQuery($sql);
+        return !empty($res) && ($res[0]["exists"] ?? $res[0]["EXISTS"] ?? false);
+    }
+
     public function query(
         null|array|string $select = null,
         ?array $insert = null,
@@ -388,8 +396,12 @@ class Database
         ?string $returning = null,
         ?string $query = null,
         ?array $params = [],
-        ?bool $returnFirst = false
+        ?bool $returnFirst = false,
+        ?bool $exists = false
     ): array|bool {
+        if ($exists && !empty($from)) {
+            return $this->exists($from, $where);
+        }
 
         if (!empty($query)) {
             $result = $this->executeQuery($query, $params);
