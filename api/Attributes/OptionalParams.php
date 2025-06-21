@@ -54,7 +54,7 @@ class OptionalParams implements AttributesInterface
         foreach (self::$params as $field => $filter) {
             $params[$field] = $filter->value ?? null;
         }
-        return ["Params" => $params];
+        return ["optionalParams" => $params];
     }
 
     /**
