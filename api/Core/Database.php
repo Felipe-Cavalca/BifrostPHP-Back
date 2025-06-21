@@ -371,6 +371,14 @@ class Database
         return false;
     }
 
+    public function exists(string $table, array|string $where): bool
+    {
+        $whereSql = $where ? self::buildWhereQuery($where) : '';
+        $sql = "SELECT EXISTS(SELECT 1 FROM $table" . ($whereSql ? " WHERE $whereSql" : "") . ") AS exists";
+        $res = $this->executeQuery($sql);
+        return !empty($res) && ($res[0]["exists"] ?? $res[0]["EXISTS"] ?? false);
+    }
+
     public function query(
         null|array|string $select = null,
         ?array $insert = null,
