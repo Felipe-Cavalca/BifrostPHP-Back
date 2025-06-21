@@ -138,6 +138,21 @@ class HttpResponse
     }
 
     /**
+     * Retorna a resposta de conflito para o cliente
+     * @param string $message Mensagem de erro a ser retornada.
+     * @param array $errors Dados adicionais sobre o erro.
+     * @return self Resposta de conflito para o cliente.
+     */
+    public static function conflict(array $errors, ?string $message = null): self
+    {
+        return new self(
+            status: HttpStatusCode::CONFLICT,
+            message: $message,
+            errors: $errors
+        );
+    }
+
+    /**
      * Retorna a resposta de erro interno do servidor para o cliente
      * @param array $errors Dados adicionais sobre o erro.
      * @param string $message Mensagem de erro a ser retornada.
