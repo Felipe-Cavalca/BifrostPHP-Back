@@ -212,7 +212,7 @@ class Database
         }
     }
 
-    public function insert(string $table, array $data, string $returning = ""): int|false
+    public function insert(string $table, array $data, string $returning = ""): int|false|string
     {
         $returning = $this->hasReturning ? $returning : "";
 
