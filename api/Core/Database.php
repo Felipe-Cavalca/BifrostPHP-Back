@@ -396,8 +396,12 @@ class Database
         ?string $returning = null,
         ?string $query = null,
         ?array $params = [],
-        ?bool $returnFirst = false
+        ?bool $returnFirst = false,
+        ?bool $exists = false
     ): array|bool {
+        if ($exists && !empty($from)) {
+            return $this->exists($from, $where);
+        }
 
         if (!empty($query)) {
             $result = $this->executeQuery($query, $params);
