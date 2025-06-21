@@ -47,7 +47,7 @@ class OptionalFields implements AttributesInterface
         foreach (self::$fields as $field => $filter) {
             $campos[$field] = $filter->value ?? null;
         }
-        return ["Optional Fields" => $campos];
+        return ["optionalFields" => $campos];
     }
 
     /**

@@ -58,7 +58,7 @@ class Method implements AttributesInterface
      */
     public function getOptions(): array
     {
-        return ["Methods" => self::$methods];
+        return ["methods" => self::$methods];
     }
 
     /**
