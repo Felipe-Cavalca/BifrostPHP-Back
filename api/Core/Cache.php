@@ -145,4 +145,22 @@ class Cache
     {
         return self::$redis->del($key);
     }
+
+    /**
+     * Gera a chave de cache no formato 'entidade:campo:valor'.
+     *
+     * @param array $conditions Condições utilizadas na busca
+     * @return string Chave para o cache
+     */
+    public static function buildCacheKey(string $entity, array $conditions): string
+    {
+        $parts = [];
+        foreach ($conditions as $field => $value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            }
+            $parts[] = "{$field}:{$value}";
+        }
+        return $entity . ':' . implode(':', $parts);
+    }
 }
