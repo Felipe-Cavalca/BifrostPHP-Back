@@ -15,7 +15,7 @@ trait AbstractFieldValue
         if (!$field->validate($value) || !$this->customValidate($value)) {
             throw new AppError(HttpResponse::internalServerError(
                 errors: [
-                    "value" => "O valor '{$value}' não é válido para o campo {$field->name}",
+                    "value" => $this->errorMessage($field, $value),
                     "field" => $field
                 ],
                 message: "Erro ao validar o campo {$field->name}"
@@ -36,7 +36,7 @@ trait AbstractFieldValue
         if (!$field->validate($value)) {
             throw new AppError(HttpResponse::internalServerError(
                 errors: [
-                    "value" => "O valor '{$value}' não é válido para o campo {$field->name}",
+                    "value" => $this->errorMessage($field, $value),
                     "field" => $field
                 ],
                 message: "Erro ao validar o campo {$field->name}"
@@ -44,8 +44,18 @@ trait AbstractFieldValue
         }
     }
 
+    private function errorMessage(Field $field, mixed $value): string
+    {
+        return "The value '{$value}' is not valid for the field {$field->name}";
+    }
+
     protected function customValidate(mixed $value): bool
     {
         return true; // por padrão
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->value;
     }
 }
