@@ -11,23 +11,30 @@ BifrostPHP é um framework minimalista voltado para a construção de pequenas A
 ```
 api/
 ├── Attributes    # Atributos personalizados em PHP
-├── Class         # Classes principais usadas pelo framework
+├── Class         # Classes do sistema
 ├── Controller    # Controladores de endpoints
 ├── Core          # Tratamento de requisições e utilidades
-├── Model         # Modelos de banco de dados
 ├── DataTypes     # Objetos de valor fortemente tipados
+├── Docs          # Esta documentação
 ├── Enum          # Definições de enums
+├── Include       # traits para reutilização de código
 ├── Interface     # Contratos de interface
-├── tests         # Requisições de exemplo para testes funcionais
-└── docs          # Esta documentação
+├── Model         # Modelos de banco de dados
+└── tests         # Requisições de exemplo para testes funcionais
 ```
 
 ## Executando a API localmente
 
 1. Instale o [Docker](https://docs.docker.com/get-docker/) e o [Docker Compose](https://docs.docker.com/compose/install/).
+
 2. Navegue até o diretório `api`.
+   ```bash
+   cd api
+   ```
+
 3. Inicie os contêineres:
    ```bash
    docker-compose up -d
    ```
+
 4. Acesse a API em [http://localhost:80](http://localhost:80).
