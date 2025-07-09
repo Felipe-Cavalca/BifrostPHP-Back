@@ -14,9 +14,9 @@
             }
         },
 
-        // Scripts do back
+        // Scripts do Back-end
         {
-            "label": "back docker-compose up",
+            "label": "Back-end docker-compose up",
             "type": "shell",
             "command": "docker-compose",
             "args": [
@@ -25,7 +25,8 @@
                 "up",
                 "--build",
                 "-d"
-            ]
+            ],
+            "group": { "kind": "build", "isDefault": true }
         }
     ]
 }
