@@ -21,6 +21,8 @@ class Cache
 {
     /** It is responsible for controlling the initialization of the cache. */
     private static $redis;
+    /** Indica se o Redis está habilitado */
+    private static bool $enabled = true;
 
     /**
      * It is responsible for initializing the cache.
@@ -42,8 +44,24 @@ class Cache
     private static function conn(): void
     {
         $settings = new Settings();
-        self::$redis = new Redis();
-        self::$redis->connect($settings->BFR_API_REDIS_HOST, $settings->BFR_API_REDIS_PORT);
+        $host = $settings->BFR_API_REDIS_HOST;
+        $port = $settings->BFR_API_REDIS_PORT;
+        if (empty($host) || empty($port)) {
+            self::$enabled = false;
+            self::$redis = null;
+            return;
+        }
+        try {
+            self::$redis = new Redis();
+            $connected = @self::$redis->connect($host, $port);
+            if (!$connected) {
+                self::$enabled = false;
+                self::$redis = null;
+            }
+        } catch (\Throwable $e) {
+            self::$enabled = false;
+            self::$redis = null;
+        }
     }
 
     /**
@@ -78,10 +96,12 @@ class Cache
      */
     public function set(string $key, mixed $value, int $expire = 0): bool
     {
+        if (!self::$enabled) {
+            return false;
+        }
         if (is_callable($value)) {
             $value = $value();
         }
-
         return self::$redis->set($key, serialize($value), $expire);
     }
 
@@ -118,6 +138,13 @@ class Cache
      */
     public function get(string $key, mixed $value = null, int $expire = 0): mixed
     {
+        if (!self::$enabled) {
+            // Executa o value se for função, senão retorna o valor
+            if (is_callable($value)) {
+                return $value();
+            }
+            return $value;
+        }
         if (!$this->exists($key) && !empty($value)) {
             $this->set($key, $value, $expire);
         }
@@ -132,6 +159,9 @@ class Cache
      */
     public function exists(string $key): bool
     {
+        if (!self::$enabled) {
+            return false;
+        }
         return self::$redis->exists($key);
     }
 
@@ -143,6 +173,9 @@ class Cache
      */
     public function del(string $key): bool
     {
+        if (!self::$enabled) {
+            return false;
+        }
         return self::$redis->del($key);
     }
 
