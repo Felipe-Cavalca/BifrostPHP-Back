@@ -1,6 +1,9 @@
 # Dockerfile.api
 FROM php:8.3-apache
 
+# Ensure all packages are updated to the latest security patches
+RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 COPY ./ /var/www/html
 
 # instalando os módulos necessários
