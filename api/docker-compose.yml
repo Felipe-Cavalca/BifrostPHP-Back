@@ -14,39 +14,5 @@ services:
     mem_limit: 256m
     cpus: '0.25'
 
-  bifrost-storage:
-    image: ghcr.io/felipe-cavalca/bifrostphp-storage:latest
-    env_file:
-      - ./../.env
-    volumes:
-      - bifrost-storage:/disks/ssd_1
-    networks:
-      - bifrost-back-network
-    mem_limit: 256m
-    cpus: '0.25'
-
-  bifrost-tests:
-    image: ghcr.io/felipe-cavalca/bifrostphp-tests:1.2.1-7
-    ports:
-      - "81:80"
-    env_file:
-      - ./../.env
-    volumes:
-       - ./tests:/tests
-    networks:
-      - bifrost-back-network
-    mem_limit: 256m
-    cpus: '0.25'
-
-  redis:
-    image: redis:alpine3.20
-    ports:
-      - "6379:6379"
-    networks:
-      - bifrost-back-network
-
-volumes:
-  bifrost-storage:
-
 networks:
   bifrost-back-network:
