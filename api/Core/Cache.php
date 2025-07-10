@@ -43,7 +43,7 @@ class Cache
     {
         $settings = new Settings();
         self::$redis = new Redis();
-        self::$redis->connect($settings->REDIS_HOST, $settings->REDIS_PORT);
+        self::$redis->connect($settings->BFR_API_REDIS_HOST, $settings->BFR_API_REDIS_PORT);
     }
 
     /**
