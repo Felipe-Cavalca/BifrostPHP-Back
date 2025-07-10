@@ -13,7 +13,7 @@ This repository provides the **back-end service** of the [BifrostPHP](https://gi
 
 ### 📚 Documentation
 
-See [`api/docs`](./api/docs/) for extended technical documentation.
+See [`/docs/api`](./docs/api) for extended technical documentation.
 
 ---
 
@@ -25,7 +25,7 @@ Este repositório fornece o **serviço back-end** do framework [BifrostPHP](http
 
 ### 📚 Documentação
 
-Para mais detalhes técnicos, acesse [`api/docs`](./api/docs/).
+Para mais detalhes técnicos, acesse [`/docs/api`](./docs/api).
 
 ---
 
