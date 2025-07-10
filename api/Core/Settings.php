@@ -95,12 +95,12 @@ final class Settings
      */
     private static function iniSet(): void
     {
-        ini_set("display_errors", (bool)static::getEnv("PHP_DISPLAY_ERRORS") ?? false);
-        ini_set("display_startup_errors", (bool)static::getEnv("PHP_DISPLAY_STARTUP_ERRORS") ?? false);
-        ini_set('session.save_handler', static::getEnv("PHP_SESSION_SAVE_HANDLER") ?? "files");
-        ini_set('session.save_path', static::getEnv("PHP_SESSION_SAVE_PATH") ?? "/var/lib/php/sessions");
-        ini_set('session.gc_maxlifetime', static::getEnv("PHP_SESSION_GC_MAXLIFETIME") ?? 1440);
-        ini_set('session.cookie_lifetime', static::getEnv("PHP_SESSION_COOKIE_LIFETIME") ?? 0);
+        ini_set("display_errors", (bool) static::getEnv("BFR_API_DISPLAY_ERRORS") ?? false);
+        ini_set("display_startup_errors", (bool) static::getEnv("BFR_API_DISPLAY_ERRORS") ?? false);
+        ini_set('session.save_handler', static::getEnv("BFR_API_SESSION_SAVE_HANDLER") ?? "files");
+        ini_set('session.save_path', static::getEnv("BFR_API_SESSION_SAVE_PATH") ?? "/var/lib/php/sessions");
+        ini_set('session.gc_maxlifetime', static::getEnv("BFR_API_SESSION_GC_MAXLIFETIME") ?? 1440);
+        ini_set('session.cookie_lifetime', static::getEnv("BFR_API_SESSION_COOKIE_LIFETIME") ?? 0);
     }
 
     /**
@@ -133,19 +133,21 @@ final class Settings
      */
     public function getSettingsDatabase(?string $databaseName = null): array
     {
+        $prefix = "BFR_API_";
+
         if (!empty($databaseName)) {
             $databaseName = strtoupper($databaseName) . "_";
         }
 
-        $isNotSqlite = static::getEnv("{$databaseName}SQL_DRIVER", true) !== "sqlite";
+        $isNotSqlite = static::getEnv("{$prefix}{$databaseName}SQL_DRIVER", true) !== "sqlite";
 
         return [
-            "driver" => static::getEnv("{$databaseName}SQL_DRIVER", true),
-            "host" => static::getEnv("{$databaseName}SQL_HOST", $isNotSqlite),
-            "port" => static::getEnv("{$databaseName}SQL_PORT", $isNotSqlite),
-            "database" => static::getEnv("{$databaseName}SQL_DATABASE", true),
-            "username" => static::getEnv("{$databaseName}SQL_USER", $isNotSqlite),
-            "password" => static::getEnv("{$databaseName}SQL_PASSWORD", $isNotSqlite),
+            "driver" => static::getEnv("{$prefix}{$databaseName}SQL_DRIVER", true),
+            "host" => static::getEnv("{$prefix}{$databaseName}SQL_HOST", $isNotSqlite),
+            "port" => static::getEnv("{$prefix}{$databaseName}SQL_PORT", $isNotSqlite),
+            "database" => static::getEnv("{$prefix}{$databaseName}SQL_DATABASE", true),
+            "username" => static::getEnv("{$prefix}{$databaseName}SQL_USER", $isNotSqlite),
+            "password" => static::getEnv("{$prefix}{$databaseName}SQL_PASSWORD", $isNotSqlite),
         ];
     }
 }

@@ -27,14 +27,16 @@ api/
 
 1. Instale o [Docker](https://docs.docker.com/get-docker/) e o [Docker Compose](https://docs.docker.com/compose/install/).
 
-2. Navegue até o diretório `api`.
+2. Crie um arquivo `.env` se baseando no `.env.example`
+
+3. Navegue até o diretório `api`.
    ```bash
    cd api
    ```
 
-3. Inicie os contêineres:
+4. Inicie os contêineres:
    ```bash
    docker-compose up -d
    ```
 
-4. Acesse a API em [http://localhost:80](http://localhost:80).
+5. Acesse a API em [http://localhost:80](http://localhost:80).

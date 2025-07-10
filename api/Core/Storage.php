@@ -17,8 +17,8 @@ class Storage
     public function __construct()
     {
         $this->settings = new Settings();
-        $this->url = new Url($this->settings->STORAGE_HOST);
-        $this->auth = $this->settings->STORAGE_API_KEY;
+        $this->url = new Url($this->settings->BFR_API_STORAGE_HOST);
+        $this->auth = $this->settings->BFR_API_STORAGE_API_KEY;
     }
 
     public function set(FilePath $file, Base64 $base64): ResponseStorage

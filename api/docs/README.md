@@ -25,9 +25,14 @@ api/
 ## Running the API locally
 
 1. Install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
-2. Navigate to the `api` directory.
-3. Start the containers:
+
+2. Create a `.env` file based on the `.env.example` file.
+
+3. Navigate to the `api` directory.
+
+4. Start the containers:
    ```bash
    docker-compose up -d
    ```
-4. Access the API at [http://localhost:80](http://localhost:80).
+
+5. Access the API at [http://localhost:80](http://localhost:80).
