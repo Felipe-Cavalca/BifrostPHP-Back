@@ -1,5 +1,2 @@
-.phpdoc
-docs/*
-storage/*
 tmp/*
 ./api/tmp/*
