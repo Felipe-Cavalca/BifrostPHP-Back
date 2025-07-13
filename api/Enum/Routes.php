@@ -13,14 +13,30 @@ Enum Routes: string
     case logout = "auth/logout";
 
     /**
-     * Método para obter o controlador associado a uma rota.
-     * @param string $path
-     * @return self|null
+     * Converte o caminho da requisição para o formato de enumeração.
+     * @param string $path O caminho da requisição, como "payments-sumary".
+     * @return self|null Retorna a enumeração correspondente ou null se não encontrado.
      */
     public static function fromRequest(string $path): ?self
     {
+        $converted = preg_replace_callback(
+            '/[-\/](\w)/',
+            fn($m) => strtoupper($m[1]),
+            $path
+        );
+
+        return self::tryFromName($converted);
+    }
+
+    /**
+     * Tenta encontrar uma enumeração pelo nome.
+     * @param string $name O nome da enumeração, como "paymentsSummary".
+     * @return self|null Retorna a enumeração correspondente ou null se não encontrado.
+     */
+    private static function tryFromName(string $name): ?self
+    {
         foreach (self::cases() as $route) {
-            if ($route->name === $path) {
+            if ($route->name === $name) {
                 return $route;
             }
         }
