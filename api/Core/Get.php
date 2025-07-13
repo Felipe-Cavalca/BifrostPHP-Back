@@ -2,6 +2,8 @@
 
 namespace Bifrost\Core;
 
+use Bifrost\Enum\Routes;
+
 class Get
 {
     private static array $data;
@@ -11,10 +13,32 @@ class Get
     public function __construct()
     {
         if (! $_GET instanceof Get) {
-            self::$controller = $_GET["_controller"] ?? "index";
-            self::$action = empty($_GET["_action"]) ? "index" : $_GET["_action"];
+
+            // Define o controlador e a ação padrão
+            $path = $_GET["_controller"] ?? "index";
+            $action = empty($_GET["_action"]) ? "index" : $_GET["_action"];
+
+            // Verifica se está nas rotas mapeadas
+            $route = Routes::fromRequest($path);
+
+            if ($route) {
+                // Divide "Controller/action"
+                [$controller, $action] = explode("/", $route->value);
+            } else {
+                $controller = $path;
+            }
+
+            // setando o controller e a ação
+            self::$controller = $controller;
+            self::$action = $action;
+
+            // Remove os parâmetros de controle e ação do array $_GET
             unset($_GET["_controller"], $_GET["_action"]);
+
+            // Armazena os dados restantes em uma propriedade estática
             self::$data = $_GET;
+
+            // Define $_GET como uma instância desta classe
             $_GET = $this;
         }
     }
