@@ -32,6 +32,10 @@ RUN echo "session.save_path = /var/lib/php/sessions" >> /usr/local/etc/php/php.i
 RUN mkdir -p /var/lib/php/sessions
 RUN chown -R www-data:www-data /var/lib/php/sessions
 
+# Criando diretórios para o supervisor
+RUN mkdir -p /var/run/supervisor
+RUN mkdir -p /var/log/supervisor
+
 # Copia a configuração do supervisord
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
