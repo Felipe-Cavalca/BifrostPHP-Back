@@ -94,7 +94,7 @@ class Cache
      * // Result: true if the cache was set successfully, false otherwise
      * </pre>
      */
-    public function set(string $key, mixed $value, int $expire = 0): bool
+    public function set(string $key, mixed $value, int $expire = 1): bool
     {
         if (!self::$enabled) {
             return false;
@@ -136,7 +136,7 @@ class Cache
      * // Result: Returns the cached value if it exists, otherwise sets and returns the value from the function
      * </pre>
      */
-    public function get(string $key, mixed $value = null, int $expire = 0): mixed
+    public function get(string $key, mixed $value = null, int $expire = 1): mixed
     {
         if (!self::$enabled) {
             // Executa o value se for função, senão retorna o valor
