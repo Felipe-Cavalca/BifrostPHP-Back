@@ -1,7 +1,7 @@
 x-template-api:
   template-api: &template-api
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.dev
     env_file:
       - ./../.env
     volumes:
