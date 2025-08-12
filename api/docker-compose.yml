@@ -1,18 +1,35 @@
-services:
-
-  api:
+x-template-api:
+  template-api: &template-api
     build:
-      dockerfile: ./Dockerfile.dev # DEV
-    ports:
-      - "80:80"
+      dockerfile: ./Dockerfile
     env_file:
       - ./../.env
     volumes:
-      - ./:/var/www/html # DEV
+      - ./:/var/www/html
     networks:
       - bifrost-back-network
-    mem_limit: 256m
-    cpus: '0.25'
+    # mem_limit: 256m
+    # cpus: '0.25'
+
+services:
+  nginx:
+    build:
+      dockerfile: ./Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api1
+      - api2
+    networks:
+      - bifrost-back-network
+
+  api1:
+    <<: *template-api
+    container_name: api1
+
+  api2:
+    <<: *template-api
+    container_name: api2
 
 networks:
   bifrost-back-network:

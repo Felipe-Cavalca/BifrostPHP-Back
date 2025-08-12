@@ -36,7 +36,19 @@ api/
 
 4. Inicie os contêineres:
    ```bash
-   docker-compose up -d
+   docker-compose up -d --build
    ```
 
+   Serão criados dois contêineres PHP-FPM (`api1` e `api2`) e um
+   contêiner `nginx` que balanceia as requisições entre eles.
+
 5. Acesse a API em [http://localhost:80](http://localhost:80).
+
+## Contêineres de produção
+
+Para ambientes de produção são fornecidos dois `Dockerfile` distintos:
+
+* `Dockerfile` - contém a aplicação rodando com **PHP-FPM** e o processo `worker`.
+* `Dockerfile.nginx` - imagem enxuta do **Nginx** configurada para encaminhar requisições aos contêineres PHP-FPM.
+
+Use o `docker-compose` para iniciar duas instâncias PHP-FPM e um contêiner `nginx` que distribui as requisições entre elas.

@@ -32,7 +32,19 @@ api/
 
 4. Start the containers:
    ```bash
-   docker-compose up -d
+   docker-compose up -d --build
    ```
 
+   This will create two PHP-FPM containers (`api1` and `api2`) and an
+   `nginx` container that load balances requests between them.
+
 5. Access the API at [http://localhost:80](http://localhost:80).
+
+## Production containers
+
+Two separate Dockerfiles are provided for production deployments:
+
+* `Dockerfile` - runs the application with **PHP-FPM** and the background `worker`.
+* `Dockerfile.nginx` - a slim **Nginx** image configured to proxy requests to the PHP-FPM containers.
+
+Use `docker-compose` to start two PHP-FPM replicas and a single `nginx` container which load balances traffic across them.
