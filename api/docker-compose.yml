@@ -13,13 +13,14 @@ x-template-api:
 
 services:
   nginx:
-    build:
-      dockerfile: ./Dockerfile.nginx
+    image: nginx:alpine
     ports:
       - "80:80"
     depends_on:
       - api1
       - api2
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - bifrost-back-network
 
