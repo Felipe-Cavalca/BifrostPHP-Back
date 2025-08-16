@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  tests:
+    build:
+      context: ../..   # raiz do projeto
+      dockerfile: tests/api/Dockerfile
+    volumes:
+      - ../../api:/app/api:ro
+      - ./:/app/tests/api
+    command: ["phpunit", "--configuration", "tests/api/phpunit.xml"]
