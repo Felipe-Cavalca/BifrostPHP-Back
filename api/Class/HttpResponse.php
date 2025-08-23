@@ -3,38 +3,48 @@
 namespace Bifrost\Class;
 
 use Bifrost\Enum\HttpStatusCode;
+use Bifrost\Interface\Responseable;
 
 /**
  * Classe para tratar respostas HTTP.
  */
-class HttpResponse
+class HttpResponse implements Responseable
 {
 
+    /**
+     * Representação da resposta HTTP.
+     * @param HttpStatusCode $status Status code da resposta HTTP
+     * @param Responseable|null|string $message Mensagem opcional da resposta HTTP
+     * @param Responseable|null|array $data Dados opcionais da resposta HTTP
+     * @param Responseable|null|array $errors Erros opcionais da resposta HTTP
+     * @param array $additionalInfo Informações adicionais opcionais da resposta HTTP
+     */
     public function __construct(
         private HttpStatusCode $status = HttpStatusCode::INTERNAL_SERVER_ERROR,
-        private ?string $message = null,
-        private null|array $data = null,
-        private ?array $errors = null,
+        private Responseable|null|string $message = null,
+        private Responseable|null|array $data = null,
+        private Responseable|null|array $errors = null,
         private array $additionalInfo = []
     ) {}
 
-    public function __toString(): string
+    /**
+     * Serializa a resposta HTTP para JSON e seta status code da response
+     * @return array Retorna a resposta HTTP serializada como um array
+     */
+    public function jsonSerialize(): array
     {
         http_response_code($this->status->value);
-        return json_encode(
-            array_merge([
-                "status" => $this->status->value,
-                "message" => $this->message ?? $this->status->message(),
-                "data" => $this->data,
-                "errors" => $this->errors,
-            ], $this->additionalInfo),
-            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
+        return array_merge([
+            "status" => $this->status->value,
+            "message" => $this->message ?? $this->status->message(),
+            "data" => $this->data,
+            "errors" => $this->errors,
+        ], $this->additionalInfo);
     }
 
     /**
-     * Adiciona informações extras à resposta.
-     * @param array $additionalInfo - Informações adicionais a serem adicionadas.
+     * Adiciona informações adicionais à resposta HTTP.
+     * @param array $additionalInfo Informações adicionais a serem adicionadas
      * @return void
      */
     public function addAditionalInfo(array $additionalInfo): void
@@ -42,17 +52,15 @@ class HttpResponse
         $this->additionalInfo = array_merge($this->additionalInfo, $additionalInfo);
     }
 
-
     // Métodos estáticos para construir respostas comuns
-
 
     /**
      * Constrói uma resposta de sucesso.
-     * @param string $message Mensagem a ser retornada.
-     * @param array $data Dados adicionais sobre o endpoint.
+     * @param string|null $message Mensagem a ser retornada.
+     * @param Responseable|array|null $data Dados adicionais sobre o endpoint.
      * @return self Instância da classe HttpResponse com status 200 (OK).
      */
-    public static function success(?string $message = null, ?array $data = null): self
+    public static function success(?string $message = null, Responseable|array|null $data = null): self
     {
         return new self(
             status: HttpStatusCode::OK,
@@ -64,10 +72,10 @@ class HttpResponse
     /**
      * Constrói uma resposta para criação de recursos.
      * @param string $objName Nome do objeto criado.
-     * @param array $data Dados sobre o recurso criado.
+     * @param Responseable $data Dados sobre o recurso criado.
      * @return self Instância da classe HttpResponse com status 201 (Created).
      */
-    public static function created(string $objName, array $data): self
+    public static function created(string $objName, Responseable $data): self
     {
         return new self(
             status: HttpStatusCode::CREATED,
@@ -93,11 +101,11 @@ class HttpResponse
 
     /**
      * Retorna a resposta de não encontrado para o cliente
-     * @param array $errors Dados adicionais sobre o erro.
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @param string $message Mensagem a ser retornada.
      * @return self Resposta de não encontrado para o cliente.
      */
-    public static function notFound(array $errors, ?string $message = null): self
+    public static function notFound(Responseable|array $errors, ?string $message = null): self
     {
         return new self(
             status: HttpStatusCode::NOT_FOUND,
@@ -124,11 +132,11 @@ class HttpResponse
 
     /**
      * Retorna a resposta de erro de requisição para o cliente
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @param string $message Mensagem de erro a ser retornada.
-     * @param array $errors Dados adicionais sobre o erro.
      * @return self Resposta de erro de requisição para o cliente.
      */
-    public static function badRequest(array $errors, ?string $message = null): self
+    public static function badRequest(Responseable|array $errors, ?string $message = null): self
     {
         return new self(
             status: HttpStatusCode::BAD_REQUEST,
@@ -139,11 +147,11 @@ class HttpResponse
 
     /**
      * Retorna a resposta de conflito para o cliente
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @param string $message Mensagem de erro a ser retornada.
-     * @param array $errors Dados adicionais sobre o erro.
      * @return self Resposta de conflito para o cliente.
      */
-    public static function conflict(array $errors, ?string $message = null): self
+    public static function conflict(Responseable|array $errors, ?string $message = null): self
     {
         return new self(
             status: HttpStatusCode::CONFLICT,
@@ -154,11 +162,11 @@ class HttpResponse
 
     /**
      * Retorna a resposta de erro interno do servidor para o cliente
-     * @param array $errors Dados adicionais sobre o erro.
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @param string $message Mensagem de erro a ser retornada.
      * @return self Resposta de erro interno do servidor para o cliente.
      */
-    public static function internalServerError(array $errors, ?string $message = null): self
+    public static function internalServerError(Responseable|array $errors, ?string $message = null): self
     {
         return new self(
             status: HttpStatusCode::INTERNAL_SERVER_ERROR,
@@ -170,10 +178,10 @@ class HttpResponse
     /**
      * Retorna a resposta de erro de autenticação para o cliente
      * @param string $message Mensagem de erro a ser retornada.
-     * @param array $errors Dados adicionais sobre o erro.
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @return self Resposta de erro de autenticação para o cliente.
      */
-    public static function unauthorized(string $message, array $errors = []): self
+    public static function unauthorized(string $message, Responseable|array $errors = []): self
     {
         return new self(
             status: HttpStatusCode::UNAUTHORIZED,
@@ -185,15 +193,15 @@ class HttpResponse
     /**
      * Retorna a resposta de erro de permissão para o cliente
      * @param string $message Mensagem de erro a ser retornada.
-     * @param array $errors Dados adicionais sobre o erro.
+     * @param Responseable|array $errors Dados adicionais sobre o erro.
      * @return self Resposta de erro de permissão para o cliente.
      */
-    public static function forbidden(string $message, array $data = []): self
+    public static function forbidden(string $message, Responseable|array $errors = []): self
     {
         return new self(
             status: HttpStatusCode::FORBIDDEN,
             message: $message,
-            errors: $data
+            errors: $errors
         );
     }
 }
