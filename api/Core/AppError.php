@@ -20,6 +20,6 @@ class AppError extends Exception
     public function __construct(HttpResponse $response)
     {
         $this->response = $response;
-        parent::__construct((string) $response);
+        parent::__construct((string) $response->message ?? "ERROR");
     }
 }

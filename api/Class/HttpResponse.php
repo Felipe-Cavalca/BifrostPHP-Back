@@ -21,7 +21,7 @@ class HttpResponse implements Responseable
      */
     public function __construct(
         private HttpStatusCode $status = HttpStatusCode::INTERNAL_SERVER_ERROR,
-        private Responseable|null|string $message = null,
+        public Responseable|null|string $message = null,
         private Responseable|null|array $data = null,
         private Responseable|null|array $errors = null,
         private array $additionalInfo = []
