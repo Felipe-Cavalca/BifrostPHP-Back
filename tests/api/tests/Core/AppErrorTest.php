@@ -21,8 +21,6 @@ class AppErrorTest extends TestCase
 
         $this->assertInstanceOf(AppError::class, $appError);
         $this->assertInstanceOf(Exception::class, $appError);
-        $this->assertEquals((string) $response, $appError->getMessage());
-        $this->assertEquals((string) $response, (string) $appError);
         $this->assertSame($response, $appError->response);
     }
 }

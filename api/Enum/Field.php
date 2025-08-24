@@ -7,11 +7,11 @@ namespace Bifrost\Enum;
  */
 enum Field: string
 {
-    case INTEGER = 'Integer';
-    case INTEGER_IN_STRING = 'Integer in string';
+    case INT = 'Integer';
+    case INT_IN_STRING = 'Integer in string';
     case STRING = 'String';
     case FLOAT = 'Float';
-    case BOOLEAN = 'Boolean';
+    case BOOL = 'Boolean';
     case ARRAY = 'Array';
     case OBJECT = 'Object';
     case NULL = 'Null';
@@ -28,11 +28,11 @@ enum Field: string
     public function validate($val): bool
     {
         return match ($this) {
-            self::INTEGER => is_int($val),
-            self::INTEGER_IN_STRING => ctype_digit($val),
+            self::INT => is_int($val),
+            self::INT_IN_STRING => ctype_digit($val),
             self::STRING => is_string($val),
             self::FLOAT => is_float($val),
-            self::BOOLEAN => is_bool($val),
+            self::BOOL => is_bool($val),
             self::ARRAY => is_array($val),
             self::OBJECT => is_object($val),
             self::NULL => is_null($val),
@@ -41,7 +41,6 @@ enum Field: string
             self::EMAIL => filter_var($val, FILTER_VALIDATE_EMAIL) !== false,
             self::URL => filter_var($val, FILTER_VALIDATE_URL) !== false,
             self::BASE64 => is_string($val) && base64_decode($val, true) !== false,
-            self::FILE_PATH => is_string($val),
             self::JSON => json_decode($val) !== null,
             self::UUID => self::validateUUID($val),
             default => false,
@@ -53,7 +52,7 @@ enum Field: string
      * @param string $val CPF a ser validado.
      * @return bool Retorna true se o CPF for válido, caso contrário, false.
      */
-    private static function validateCPF($val): bool
+    public static function validateCPF($val): bool
     {
         $val = preg_replace('/\D/', '', $val);
 
@@ -87,7 +86,7 @@ enum Field: string
      * @param string $val CNPJ a ser validado.
      * @return bool Retorna true se o CNPJ for válido, caso contrário, false.
      */
-    private static function validateCNPJ($val): bool
+    public static function validateCNPJ($val): bool
     {
         $val = preg_replace('/\D/', '', $val);
 
@@ -118,7 +117,7 @@ enum Field: string
         return true;
     }
 
-    private static function validateUUID($val = null): bool
+    public static function validateUUID($val = null): bool
     {
         if (empty($val)) {
             return false;

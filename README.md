@@ -146,9 +146,9 @@ namespace App\Controller;
 
 use Bifrost\Attributes\Method;
 use Bifrost\Class\HttpResponse;
-use Bifrost\Interface\ControllerInterface;
+use Bifrost\Interface\Controller;
 
-class User implements ControllerInterface
+class User implements Controller
 {
     #[Method("GET")]
     public function list()
