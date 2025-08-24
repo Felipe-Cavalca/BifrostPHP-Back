@@ -2,7 +2,7 @@
 
 namespace Bifrost\Core;
 
-use Bifrost\Interface\TaskInterface;
+use Bifrost\Interface\Task;
 use Redis;
 
 class Queue
@@ -47,7 +47,7 @@ class Queue
     /**
      * Adiciona uma tarefa no começo da fila (prioridade alta).
      */
-    public function addToFront(TaskInterface $task): void
+    public function addToFront(Task $task): void
     {
         if (!self::$enabled) {
             $task->run();
@@ -61,7 +61,7 @@ class Queue
     /**
      * Adiciona uma tarefa no final da fila (processamento normal).
      */
-    public function addToEnd(TaskInterface $task): void
+    public function addToEnd(Task $task): void
     {
         if (!self::$enabled) {
             $task->run();
@@ -75,7 +75,7 @@ class Queue
     /**
      * Adiciona uma tarefa agendada para rodar daqui a X segundos.
      */
-    public function addScheduledTask(TaskInterface $task, int $seconds): void
+    public function addScheduledTask(Task $task, int $seconds): void
     {
         if (!self::$enabled) {
             $task->run();
@@ -90,7 +90,7 @@ class Queue
     /**
      * Obtém a próxima tarefa da fila.
      */
-    public function getNextTask(): ?TaskInterface
+    public function getNextTask(): ?Task
     {
         if (!self::$enabled) {
             return null;
@@ -104,7 +104,7 @@ class Queue
         }
 
         $task = unserialize($taskData);
-        if (!$task instanceof TaskInterface) {
+        if (!$task instanceof Task) {
             throw new \RuntimeException('Tarefa inválida na fila');
         }
 
@@ -114,7 +114,7 @@ class Queue
     /**
      * Remove uma tarefa da fila de processamento, indicando que foi concluída.
      */
-    public function acknowledgeTask(TaskInterface $task): void
+    public function acknowledgeTask(Task $task): void
     {
         self::$redis->lrem(self::$queue . ':processing', serialize($task), 1);
     }
@@ -122,7 +122,7 @@ class Queue
     /**
      * Reinsere uma tarefa na fila principal para ser processada novamente.
      */
-    public function requeueTask(TaskInterface $task): void
+    public function requeueTask(Task $task): void
     {
         // Remove da fila de processamento e reinsere na fila principal
         self::$redis->lrem(self::$queue . ':processing', serialize($task), 1);
