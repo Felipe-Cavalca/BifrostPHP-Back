@@ -6,7 +6,7 @@ use Bifrost\Class\HttpResponse;
 use \Exception;
 
 /**
- * É responsável por disparar erros de aplicação.
+ * Dispara uma exceção personalizada com base em uma resposta HTTP
  * @property HttpResponse $response
  */
 class AppError extends Exception
@@ -14,21 +14,12 @@ class AppError extends Exception
     public HttpResponse $response;
 
     /**
-     * AppError constructor.
-     * @param HttpResponse $response
+     * Encapsula a resposta HTTP em uma exceção personalizada
+     * @param HttpResponse resposta HTTP
      */
     public function __construct(HttpResponse $response)
     {
         $this->response = $response;
-        parent::__construct((string)$response);
-    }
-
-    /**
-     * Retorna a mensagem de erro.
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->response;
+        parent::__construct((string) $response);
     }
 }
