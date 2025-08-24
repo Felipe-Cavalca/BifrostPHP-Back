@@ -37,7 +37,7 @@ class Method implements AttributesInterface, AttributeBefore
 
         // Valida se o método da requisição é permitido.
         if (!$this->validateMethods(self::$methods)) {
-            throw new AppError(HttpResponse::methodNotAllowed("The method {$_SERVER["REQUEST_METHOD"]} is not allowed for this endpoint."));
+            return HttpResponse::methodNotAllowed(message: "The method {$_SERVER["REQUEST_METHOD"]} is not allowed for this endpoint.");
         }
 
         return null;
