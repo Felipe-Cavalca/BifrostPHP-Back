@@ -5,19 +5,15 @@ namespace Bifrost\Attributes;
 use Attribute;
 use Bifrost\Class\HttpResponse;
 use Bifrost\Core\AppError;
-use Bifrost\Include\AtrributesDefaultMethods;
-use Bifrost\Interface\AttributesInterface;
+use Bifrost\Interface\Attribute as AttributesInterface;
 use Bifrost\Core\Request;
 use Bifrost\Core\Get;
+use Bifrost\Interface\AttributeBefore;
+use Bifrost\Interface\Responseable;
 
-/**
- * Método da requisição HTTP.
- * @param string ...$parms - Métodos permitidos para o endpoint.
- */
 #[Attribute]
-class Method implements AttributesInterface
+class Method implements AttributesInterface, AttributeBefore
 {
-    use AtrributesDefaultMethods;
 
     private static array $methods;
     private Get $Get;
@@ -28,13 +24,8 @@ class Method implements AttributesInterface
         $this->Get = new Get();
     }
 
-    /**
-     * Classifica o método da requisição e retorna os detalhes do endpoint.
-     * @return mixed - Detalhes do endpoint ou erro de método não permitido.
-     */
-    public function beforeRun(): mixed
+    public function before(): null|Responseable
     {
-        // Caso o método seja OPTIONS e o endpoint não receba o OPTIONS retorna os dados do endpoint.
         if ($this->isOptions() && !in_array("OPTIONS", self::$methods)) {
             return HttpResponse::success(
                 message: "Endpoint information",
@@ -71,10 +62,6 @@ class Method implements AttributesInterface
         return in_array($_SERVER["REQUEST_METHOD"], $methods);
     }
 
-    /**
-     * Valida se o método da requisição é OPTIONS.
-     * @return bool - Retorna true se o método da requisição for OPTIONS, caso contrário false.
-     */
     public static function isOptions(): bool
     {
         return self::validateMethods(["OPTIONS"]);

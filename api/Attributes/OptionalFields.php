@@ -6,20 +6,18 @@ use Attribute;
 use Bifrost\Class\HttpResponse;
 use Bifrost\Core\Post;
 use Bifrost\Enum\Field;
-use Bifrost\Include\AtrributesDefaultMethods;
-use Bifrost\Interface\AttributesInterface;
+use Bifrost\Interface\Attribute as AttributeInterface;
+use Bifrost\Interface\AttributeBefore;
+use Bifrost\Interface\Responseable;
 
 #[Attribute]
-class OptionalFields implements AttributesInterface
+class OptionalFields implements AttributeInterface, AttributeBefore
 {
-
-    use AtrributesDefaultMethods;
-
     public static array $fields = [];
     private array $errors = [];
 
     /**
-     * @param array $params - Campos opcionais a serem mostrados.
+     * @param array $params Campos opcionais a serem mostrados.
      */
     public function __construct(...$fields)
     {
@@ -28,9 +26,9 @@ class OptionalFields implements AttributesInterface
 
     /**
      * Valida os campos opcionais e retorna erro caso algum campo não seja válido.
-     * @return mixed - Erro de requisição ou null caso não tenha erro.
+     * @return null|Responseable Erro de requisição ou null caso não tenha erro.
      */
-    public function beforeRun(): mixed
+    public function before(): null|Responseable
     {
         if (!$this->validateOptionalFields(self::$fields)) {
             return HttpResponse::badRequest(
@@ -41,6 +39,10 @@ class OptionalFields implements AttributesInterface
         return null;
     }
 
+    /**
+     * Retorna os detalhes dos campos opcionais.
+     * @return array dados dos campos
+     */
     public function getOptions(): array
     {
         $campos = [];
@@ -52,8 +54,8 @@ class OptionalFields implements AttributesInterface
 
     /**
      * Valida os campos opcionais e retorna erro caso algum campo não seja válido.
-     * @param array $fields - Campos opcionais para o endpoint.
-     * @return bool - True caso todos os campos sejam válidos, false caso contrário.
+     * @param array $fields Campos opcionais para o endpoint.
+     * @return bool True caso todos os campos sejam válidos, false caso contrário.
      */
     public function validateOptionalFields(array $fields): bool
     {

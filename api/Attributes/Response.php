@@ -3,14 +3,11 @@
 namespace Bifrost\Attributes;
 
 use Attribute;
-use Bifrost\Include\AtrributesDefaultMethods;
-use Bifrost\Interface\AttributesInterface;
+use Bifrost\Interface\Attribute as AttributeInterface;
 
 #[Attribute]
-class response implements AttributesInterface
+class response implements AttributeInterface
 {
-    use AtrributesDefaultMethods;
-
     public static array $response = [];
 
     public function __construct(...$response)
@@ -23,6 +20,10 @@ class response implements AttributesInterface
         return ["response" => $this->getField(self::$response)];
     }
 
+    /**
+     * Processa a estrutura de resposta e retorna as opções formatadas.
+     * @return array Retorna as opções formatadas da estrutura de resposta.
+     */
     public function getField(array $arr): array
     {
         $options = [];

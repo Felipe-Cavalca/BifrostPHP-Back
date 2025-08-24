@@ -4,20 +4,15 @@ namespace Bifrost\Attributes;
 
 use Attribute;
 use Bifrost\Class\HttpResponse;
-use Bifrost\Interface\AttributesInterface;
-use Bifrost\Include\AtrributesDefaultMethods;
+use Bifrost\Interface\Attribute as AttributeInterface;
 use Bifrost\Core\Get;
 use Bifrost\Enum\Field;
+use Bifrost\Interface\AttributeBefore;
+use Bifrost\Interface\Responseable;
 
-/**
- * Parâmetros opcionais para o endpoint.
- * @param array $params - Parâmetros opcionais para o endpoint.
- * Recebe o array sendo o índice no GET e o valor o tipo do campo.
- */
 #[Attribute]
-class OptionalParams implements AttributesInterface
+class OptionalParams implements AttributeInterface, AttributeBefore
 {
-    use AtrributesDefaultMethods;
 
     public static array $params = [];
     private Get $Get;
@@ -31,9 +26,9 @@ class OptionalParams implements AttributesInterface
 
     /**
      * Valida os parâmetros opcionais e retorna erro caso algum parâmetro não seja válido.
-     * @return mixed - Erro de requisição ou null caso não tenha erro.
+     * @return null|Responseable Retorna uma resposta em caso de erro ou null se todos os parâmetros forem válidos.
      */
-    public function beforeRun(): mixed
+    public function before(): null|Responseable
     {
         if (!$this->validateOptionalParams(self::$params)) {
             return HttpResponse::badRequest(
@@ -46,7 +41,7 @@ class OptionalParams implements AttributesInterface
 
     /**
      * Retorna os parâmetros opcionais para o endpoint.
-     * @return array - Parâmetros opcionais para o endpoint.
+     * @return array Parâmetros opcionais para o endpoint.
      */
     public function getOptions(): array
     {
@@ -60,7 +55,7 @@ class OptionalParams implements AttributesInterface
     /**
      * Valida os parâmetros opcionais e retorna erro caso algum parâmetro não seja válido.
      * @param array $params - Parâmetros opcionais para o endpoint.
-     * @return bool - True caso todos os parâmetros sejam válidos, false caso contrário.
+     * @return bool True caso todos os parâmetros sejam válidos, false caso contrário.
      */
     private function validateOptionalParams(array $params): bool
     {
@@ -93,20 +88,10 @@ class OptionalParams implements AttributesInterface
     }
 
     /**
-     * Valida se o parâmetro existe no GET.
-     * @param string $field - Parâmetro a ser validado.
-     * @return bool - Retorna true se o parâmetro existir, false caso contrário.
-     */
-    private function existParam(string $field): bool
-    {
-        return isset($this->Get->$field);
-    }
-
-    /**
      * Valida o tipo do parâmetro.
-     * @param string $field - Parâmetro a ser validado.
-     * @param Field $filter - Tipo do parâmetro a ser validado.
-     * @return bool - Retorna true se o tipo do parâmetro for válido, false caso contrário.
+     * @param string $field Parâmetro a ser validado.
+     * @param Field $filter Tipo do parâmetro a ser validado.
+     * @return bool Retorna true se o tipo do parâmetro for válido, false caso contrário.
      */
     private function validateType(string $field, Field $filter): bool
     {

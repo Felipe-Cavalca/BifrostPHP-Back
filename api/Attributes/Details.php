@@ -3,8 +3,7 @@
 namespace Bifrost\Attributes;
 
 use Attribute;
-use Bifrost\Interface\AttributesInterface;
-use Bifrost\Include\AtrributesDefaultMethods;
+use Bifrost\Interface\Attribute as AttributesInterface;
 
 /**
  * Detalhes adicionais a serem mostrados caso a requisição seja OPTION.
@@ -13,11 +12,6 @@ use Bifrost\Include\AtrributesDefaultMethods;
 #[Attribute]
 class Details implements AttributesInterface
 {
-    use AtrributesDefaultMethods;
-
-    /**
-     * @var array - Detalhes extras da execução passados por parâmetro.
-     */
     public static array $details = [];
 
     public function __construct(...$params)
