@@ -14,7 +14,11 @@ use Bifrost\Core\AppError;
 use Bifrost\Core\Get;
 use Bifrost\Core\Settings;
 use Bifrost\Enum\Path;
-use Bifrost\Interface\ControllerInterface;
+use Bifrost\Interface\Attribute;
+use Bifrost\Interface\AttributeAfter;
+use Bifrost\Interface\AttributeBefore;
+use Bifrost\Interface\Controller;
+use Bifrost\Interface\Responseable;
 use ReflectionMethod;
 
 /**
@@ -43,15 +47,15 @@ final class Request
 
     /**
      * Executa uma ação de um Controller.
-     * @param string|ControllerInterface $controller Nome do Controller.
+     * @param string|Controller $controller Nome do Controller.
      * @param string $action Nome da ação do Controller.
      * @return mixed Retorna o resultado da ação do Controller.
      */
-    public static function run(string|ControllerInterface $controller, string $action): mixed
+    public static function run(string|Controller $controller, string $action): Responseable
     {
         try {
 
-            if ($controller instanceof ControllerInterface) {
+            if ($controller instanceof Controller) {
                 $objController = $controller;
             } else {
                 if (empty($controller) || !self::validateControllerName($controller)) {
@@ -79,7 +83,7 @@ final class Request
             return $return;
         } catch (\Throwable $erro) {
             if ($erro instanceof AppError) {
-                return $erro;
+                return $erro->response;
             }
             return HttpResponse::internalServerError([], $erro->getMessage());
         }
@@ -103,9 +107,9 @@ final class Request
     /**
      * Carrega o Controller.
      * @param string $controllerName Nome do Controller.
-     * @return ControllerInterface Retorna uma instância do Controller.
+     * @return Controller Retorna uma instância do Controller.
      */
-    private static function loadController(string $controllerName): ControllerInterface
+    private static function loadController(string $controllerName): Controller
     {
         $controller = Path::NAMESPACE->value . Path::CONTROLLERS->value . $controllerName;
         return new $controller();
@@ -113,11 +117,11 @@ final class Request
 
     /**
      * Valida o nome da ação do Controller.
-     * @param ControllerInterface $controller Instância do Controller.
+     * @param Controller $controller Instância do Controller.
      * @param string $action Nome da ação do Controller.
      * @return bool Retorna true se a ação for válida, caso contrário, false.
      */
-    private static function validateActionName(ControllerInterface $controller, string $action): bool
+    private static function validateActionName(Controller $controller, string $action): bool
     {
         return method_exists($controller, $action);
     }
@@ -138,16 +142,15 @@ final class Request
     }
 
     /**
-     * Executa os métodos beforeRun dos atributos.
+     * Executa os métodos before dos atributos.
      * @param array $attributes Atributos do método.
-     * @return mixed Retorna o resultado do método beforeRun, se houver.
-     * @see AttributesInterface
+     * @return null|Responseable Retorna o resultado do método before, se houver.
      */
-    private static function runBeforeAttributes(array $attributes): mixed
+    private static function runBeforeAttributes(array $attributes): null|Responseable
     {
         foreach ($attributes as $attribute) {
-            if (method_exists($attribute, "beforeRun")) {
-                $retorno = $attribute->beforeRun();
+            if ($attribute instanceof AttributeBefore) {
+                $retorno = $attribute->before();
                 if ($retorno !== null) {
                     return $retorno;
                 }
@@ -157,35 +160,39 @@ final class Request
     }
 
     /**
-     * Executa os métodos afterRun dos atributos.
-     * @param array|null $attributes Atributos do método.
-     * @param mixed $return Retorno da ação do Controller.
+     * Executa os métodos after dos atributos.
+     * @param array $attributes Atributos do método.
+     * @param Responseable $return Retorno da ação do Controller.
      * @return void
-     * @see AttributesInterface
      */
-    private static function runAfterAttributes(array|null $attributes, mixed $return): void
+    private static function runAfterAttributes(array $attributes, Responseable $return): void
     {
         foreach ($attributes as $attribute) {
-            if (method_exists($attribute, "afterRun")) {
-                $attribute->afterRun($return);
+            if ($attribute instanceof AttributeAfter) {
+                $attribute->after($return);
             }
         }
     }
 
     /**
      * Executa a ação do Controller.
-     * @param ControllerInterface $controller Instância do Controller.
+     * @param Controller $controller Instância do Controller.
      * @param string $action Nome da ação do Controller.
-     * @return mixed Retorna o resultado da ação do Controller.
+     * @return Responseable Retorna o resultado da ação executada pelo Controller.
      */
-    private static function runAction(ControllerInterface $controller, string $action): mixed
+    private static function runAction(Controller $controller, string $action): Responseable
     {
         return call_user_func([$controller, $action]);
     }
 
-    private function handleResponse(mixed $return): string
+    /**
+     * Lida com a resposta retornada pela ação do Controller.
+     * @param mixed $return A resposta retornada pela ação do Controller.
+     * @return string Retorna a resposta processada como string.
+     */
+    private static function handleResponse(mixed $return): string
     {
-        if (is_array($return)) {
+        if (is_array($return) || $return instanceof Responseable) {
             return json_encode($return);
         } else {
             return (string) $return;
@@ -194,13 +201,13 @@ final class Request
 
     /**
      * Obtém os atributos de opções de um Controller e ação.
-     * @param string|ControllerInterface $controller Nome do Controller ou instância do Controller.
+     * @param string|Controller $controller Nome do Controller ou instância do Controller.
      * @param string $action Nome da ação do Controller.
      * @return array Retorna um array com as opções dos atributos.
      */
-    public static function getOptionsAttributes(string|ControllerInterface $controller, string $action): array
+    public static function getOptionsAttributes(string|Controller $controller, string $action): array
     {
-        if (! $controller instanceof ControllerInterface) {
+        if (! $controller instanceof Controller) {
             $controller = self::loadController($controller);
         }
 
@@ -209,7 +216,7 @@ final class Request
         $options = [];
         foreach ($attributes as $attribute) {
             $attribute = $attribute->newInstance();
-            if (method_exists($attribute, "getOptions")) {
+            if ($attribute instanceof Attribute) {
                 $options = array_merge($options, $attribute->getOptions());
             }
         }
