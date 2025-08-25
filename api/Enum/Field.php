@@ -21,9 +21,12 @@ enum Field: string
     case EMAIL = 'Email';
     case URL = 'Url';
     case BASE64 = 'Base64';
-    case FILE_PATH = 'File path';
     case JSON = 'JSON';
     case UUID = 'UUID';
+    case FOLDER_NAME = 'Folder name';
+    case FOLDER_PATH = 'Folder path';
+    case FILE_NAME = 'File name';
+    case FILE_PATH = 'File path';
 
     public function validate($val): bool
     {
@@ -43,6 +46,10 @@ enum Field: string
             self::BASE64 => is_string($val) && base64_decode($val, true) !== false,
             self::JSON => json_decode($val) !== null,
             self::UUID => self::validateUUID($val),
+            self::FOLDER_NAME => self::validateFolderName($val),
+            self::FOLDER_PATH => self::validateFolderPath($val),
+            self::FILE_NAME => self::validateFileName($val),
+            self::FILE_PATH => self::validateFilePath($val),
             default => false,
         };
     }
@@ -123,5 +130,101 @@ enum Field: string
             return false;
         }
         return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $val) === 1;
+    }
+
+    /**
+     * Valida o nome de uma pasta.
+     * @param string $val Nome da pasta a ser validado.
+     * @return bool Retorna true se o nome for válido, caso contrário, false.
+     */
+    public static function validateFolderName(string $val): bool
+    {
+        if (!is_string($val)) {
+            return false;
+        }
+
+        // Permite apenas caracteres válidos para pastas e tamanho entre 1 e 255
+        return preg_match('/^(?!.*\.)[^\\/:*?"<>|]{1,255}$/', $val) === 1;
+    }
+
+    /**
+     * Valida o caminho de uma pasta.
+     * @param string $val Caminho da pasta a ser validado.
+     * @return bool Retorna true se o caminho for válido, caso contrário, false.
+     */
+    public static function validateFolderPath(string $val): bool
+    {
+        if (!is_string($val)) {
+            return false;
+        }
+
+        foreach (explode('/', $val) as $key => $folder) {
+            // !== por conta de path que começa com "/", então no explode vem uma string vazia
+            if ($key === 0 && $folder === '') {
+                // Se for o primeiro elemento e for vazio, é um caminho absoluto, então não valida
+                continue;
+            }
+            if (!self::validateFolderName($folder)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida o nome de um arquivo.
+     * @param string $val Nome do arquivo a ser validado.
+     * @return bool Retorna true se o nome for válido, caso contrário, false.
+     */
+    public static function validateFileName(string $val): bool
+    {
+        if (!is_string($val)) {
+            return false;
+        }
+
+        if (strpos($val, '/') !== false || strpos($val, '\\') !== false) {
+            return false;
+        }
+        if ($val === '' || strlen($val) > 255) {
+            return false;
+        }
+        // Não permite "." ou ".."
+        if ($val === '.' || $val === '..') {
+            return false;
+        }
+        // Não permite nomes começando ou terminando com ponto
+        if ($val[0] === '.' || substr($val, -1) === '.') {
+            return false;
+        }
+        // Não permite caracteres inválidos
+        return preg_match('/^[^\\/:*?"<>|]+$/', $val) === 1;
+    }
+
+    /**
+     * Valida o caminho de um arquivo.
+     * @param string $val Caminho do arquivo a ser validado.
+     * @return bool Retorna true se o caminho for válido, caso contrário, false.
+     */
+    public static function validateFilePath(string $val): bool
+    {
+        if (!is_string($val)) {
+            return false;
+        }
+
+        $parts = explode('/', $val);
+        if (count($parts) < 1) {
+            return false;
+        }
+
+        // Todas as partes, exceto a última, devem ser nomes de pastas válidos
+        for ($i = 0; $i < count($parts) - 1; $i++) {
+            if (!self::validateFolderName($parts[$i])) {
+                return false;
+            }
+        }
+
+        // A última parte deve ser um nome de arquivo válido
+        return self::validateFileName(end($parts));
     }
 }
