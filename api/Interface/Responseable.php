@@ -10,5 +10,5 @@ interface Responseable extends JsonSerializable
     /**
      * Metodo para serializar o objeto em um array para representação JSON.
      */
-    public function jsonSerialize(): array;
+    public function jsonSerialize(): array|string;
 }
