@@ -6,7 +6,7 @@ use Attribute;
 use Bifrost\Interface\Attribute as AttributeInterface;
 
 #[Attribute]
-class response implements AttributeInterface
+class Response implements AttributeInterface
 {
     public static array $response = [];
 
